@@ -267,7 +267,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision jdk8u392-b08
+%global openjdk_revision jdk8u402-b06
 %global shenandoah_revision shenandoah-%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop file
 %global icedteaver      3.15.0
@@ -597,8 +597,6 @@ Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 Patch581: jdk8257794-remove_broken_assert.patch
 # JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
 Patch12: jdk8186464-rh1433262-zip64_failure.patch
-# JDK-8312489, OJ2095: Increase jdk.jar.maxSignatureFileSize default which is too low for JARs such as WhiteSource/Mend unified agent jar
-Patch2000: jdk8312489-max_sig_default_increase.patch
 
 #############################################
 #
@@ -869,8 +867,6 @@ pushd %{top_level_dir_name}
 %patch1000 -p1
 # system cacerts support
 %patch539 -p1
-# JDK-8312489 backport, proposed for 8u402: https://github.com/openjdk/jdk8u-dev/pull/381
-%patch2000 -p1
 popd
 
 # RPM-only fixes
@@ -1500,6 +1496,19 @@ done
 %{_jvmdir}/%{miscportablearchive}.sha256sum
 
 %changelog
+* Thu Jan 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.402.b06-0.1.ea
+- Update to shenandoah-jdk8u402-b06 (GA)
+- Update release notes for shenandoah-8u402-b06.
+- Drop local copy of JDK-8312489 which is now included upstream
+- Switch to GA mode.
+- ** This tarball is embargoed until 2024-01-16 @ 1pm PT. **
+
+* Tue Dec 05 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.402.b01-0.1.ea
+- Update to shenandoah-jdk8u402-b01 (EA)
+- Update release notes for shenandoah-8u402-b01.
+- Switch to EA mode.
+- Sync NEWS with vanilla branch version.
+
 * Wed Oct 11 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.392.b08-1
 - Update to shenandoah-jdk8u392-b08 (GA)
 - Update release notes for shenandoah-8u392-b08.

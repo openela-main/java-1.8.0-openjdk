@@ -305,7 +305,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision jdk8u392-b08
+%global openjdk_revision jdk8u402-b06
 %global shenandoah_revision shenandoah-%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -351,7 +351,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      3
+%global rpmrelease      2
 # Settings used by the portable build
 %global portablerelease 1
 %global portablesuffix el8
@@ -1562,8 +1562,6 @@ Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
 Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 # JDK-8257794: Zero: assert(istate->_stack_limit == istate->_thread->last_Java_sp() + 1) failed: wrong on Linux/x86_32
 Patch581: jdk8257794-remove_broken_assert.patch
-# JDK-8312489, OJ2095: Increase jdk.jar.maxSignatureFileSize default which is too low for JARs such as WhiteSource/Mend unified agent jar
-Patch2000: jdk8312489-max_sig_default_increase.patch
 
 #############################################
 #
@@ -1986,8 +1984,6 @@ pushd %{top_level_dir_name}
 %patch1000 -p1
 # cacerts patch; must follow FIPS patch as it also alters java.security
 %patch539 -p1
-# JDK-8312489 backport, proposed for 8u402: https://github.com/openjdk/jdk8u-dev/pull/381
-%patch2000 -p1
 popd
 
 # RPM-only fixes
@@ -2877,6 +2873,16 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Thu Jan 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.402.b06-0.2.ea
+- Update to shenandoah-jdk8u402-b06 (GA)
+- Update release notes for shenandoah-8u402-b06.
+- Sync NEWS with vanilla branch version.
+- Sync the copy of the portable specfile with the latest update
+- Drop local copy of JDK-8312489 which is now included upstream
+- ** This tarball is embargoed until 2024-01-16 @ 1pm PT. **
+- Resolves: RHEL-17918
+- Resolves: RHEL-20987
+
 * Mon Oct 16 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.392.b08-3
 - Revert jcmd move as jcmd will not operate without tools.jar
 - Related: RHEL-13605
