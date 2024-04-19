@@ -305,8 +305,8 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision jdk8u402-b06
-%global shenandoah_revision shenandoah-%{openjdk_revision}
+%global openjdk_revision 8u412-b08
+%global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
 # Define current Git revision for the FIPS support patches
@@ -353,7 +353,7 @@
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
 %global rpmrelease      2
 # Settings used by the portable build
-%global portablerelease 1
+%global portablerelease 2
 %global portablesuffix el8
 %global portablebuilddir /builddir/build/BUILD
 
@@ -1252,8 +1252,9 @@ Provides: jre%{?1} = %{epoch}:%{version}-%{release}
 Requires: ca-certificates
 # Require javapackages-filesystem for ownership of /usr/lib/jvm/ and macros
 Requires: javapackages-filesystem
-# 2022g required as of JDK-8297804
-Requires: tzdata-java >= 2022g
+# 2024a required as of JDK-8325150
+# Use 2023d until 2024a is in the buildroot
+Requires: tzdata-java >= 2023d
 # for support of kernel stream control
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
@@ -1389,14 +1390,14 @@ License:  ASL 1.1 and ASL 2.0 and BSD and BSD with advertising and GPL+ and GPLv
 URL:      http://openjdk.java.net/
 
 # Shenandoah HotSpot
-# aarch64-port/jdk8u-shenandoah contains an integration forest of
-# OpenJDK 8u, the aarch64 port and Shenandoah
+# openjdk/shenandoah-jdk8u contains an integration forest of
+# OpenJDK 8u and the Shenandoah garbage collector
 # To regenerate, use:
 # VERSION=%%{shenandoah_revision}
-# FILE_NAME_ROOT=%%{project}-%%{repo}-${VERSION}
+# FILE_NAME_ROOT=${VERSION}
 # REPO_ROOT=<path to checked-out repository> generate_source_tarball.sh
 # where the source is obtained from http://github.com/%%{project}/%%{repo}
-Source0: %{project}-%{repo}-%{shenandoah_revision}.tar.xz
+Source0: %{shenandoah_revision}.tar.xz
 
 # Release notes
 Source7: NEWS
@@ -1460,12 +1461,15 @@ Source20: java-1.%{majorver}.0-openjdk-portable.specfile
 # either in their current form or at all.
 ############################################
 
+# Accessibility patches
+# Ignore AWTError when assistive technologies are loaded
+Patch1:   rh1648242-accessible_toolkit_crash_do_not_break_jvm.patch
 # Turn on AssumeMP by default on RHEL systems
 Patch534: rh1648246-always_instruct_vm_to_assume_multiple_processors_are_available.patch
-# RH1582504: Use RSA as default for keytool, as DSA is disabled in all crypto policies except LEGACY
-Patch1003: rh1582504-rsa_default_for_keytool.patch
 # RH1648249: Add PKCS11 provider to java.security
 Patch1000: rh1648249-add_commented_out_nss_cfg_provider_to_java_security.patch
+# RH1582504: Use RSA as default for keytool, as DSA is disabled in all crypto policies except LEGACY
+Patch1003: rh1582504-rsa_default_for_keytool.patch
 
 # Crypto policy and FIPS support patches
 # Patch is generated from the fips tree at https://github.com/rh-openjdk/jdk8u/tree/fips
@@ -1511,11 +1515,10 @@ Patch528: pr3083-rh1346460-for_ssl_debug_return_null_instead_of_exception_when_t
 # Patch is generated from the cacerts tree at https://github.com/rh-openjdk/jdk8u/tree/cacerts
 # as follows: git diff fips > pr2888-rh2055274-support_system_cacerts-$(git show -s --format=%h HEAD).patch
 Patch539: pr2888-rh2055274-support_system_cacerts-%{cacertsver}.patch
-# enable build of speculative store bypass hardened alt-java
+# RH1684077, JDK-8009550: Depend on pcsc-lite-libs instead of pcsc-lite-devel as this is only in optional repo
+Patch541: rh1684077-openjdk_should_depend_on_pcsc-lite-libs_instead_of_pcsc-lite-devel.patch
+# RH1750419: Enable build of speculative store bypass hardened alt-java (CVE-2018-3639)
 Patch600: rh1750419-redhat_alt_java.patch
-# JDK-8218811: replace open by os::open in hotspot coding
-# This fixes a GCC 10 build issue
-Patch111: jdk8218811-perfMemory_linux.patch
 # JDK-8281098, PR3836: Extra compiler flags not passed to adlc build
 Patch112: jdk8281098-pr3836-pass_compiler_flags_to_adlc.patch
 
@@ -1562,6 +1565,8 @@ Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
 Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 # JDK-8257794: Zero: assert(istate->_stack_limit == istate->_thread->last_Java_sp() + 1) failed: wrong on Linux/x86_32
 Patch581: jdk8257794-remove_broken_assert.patch
+# JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
+Patch12: jdk8186464-rh1433262-zip64_failure.patch
 
 #############################################
 #
@@ -1659,8 +1664,9 @@ BuildRequires: java-%{buildjdkver}-openjdk-devel >= 1.7.0.151-2.6.11.3
 BuildRequires: libffi
 BuildRequires: libffi-devel
 %endif
-# 2023c required as of JDK-8305113
-BuildRequires: tzdata-java >= 2023c
+# 2024a required as of JDK-8325150
+# Use 2023d until 2024a is in the buildroot
+BuildRequires: tzdata-java >= 2023d
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -1921,6 +1927,9 @@ fi
 echo "Update version: %{updatever}"
 echo "Build number: %{buildver}"
 echo "Milestone: %{milestone}"
+%ifnarch %{ix86}
+export XZ_OPT="-T0"
+%endif
 %setup -q -c -n %{uniquesuffix ""} -T -a 0
 # https://bugzilla.redhat.com/show_bug.cgi?id=1189084
 prioritylength=`expr length %{priority}`
@@ -1941,6 +1950,20 @@ cp %{SOURCE101} %{top_level_dir_name}/common/autoconf/build-aux/
 
 # OpenJDK patches
 
+# This syntax is deprecated:
+#    %patchN [...]
+# and should be replaced with:
+#    %patch -PN [...]
+# For example:
+#    %patch1001 -p1
+# becomes:
+#    %patch -P1001 -p1
+# The replacement format suggested by recent (circa Fedora 38) RPM
+# deprecation messages:
+#    %patch N [...]
+# is not backward-compatible with prior (circa RHEL-8) versions of
+# rpmbuild.
+
 %if %{system_libs}
 # Remove libraries that are linked
 sh %{SOURCE12}
@@ -1948,51 +1971,53 @@ sh %{SOURCE12}
 
 # System library fixes
 %if %{system_libs}
-%patch201
-%patch202
-%patch203
-%patch204
+%patch -P201
+%patch -P202
+%patch -P203
+%patch -P204
 %endif
 
-%patch5
+%patch -P1
+%patch -P5
 
 # s390 build fixes
-%patch102
-%patch103
-%patch107
+%patch -P102
+%patch -P103
+%patch -P107
 
 # AArch64 fixes
 
 # x86 fixes
-%patch105
+%patch -P105
 
 # Upstreamable fixes
-%patch502
-%patch512
-%patch523
-%patch528
-%patch571
-%patch574
-%patch111
-%patch112
-%patch581
+%patch -P502
+%patch -P512
+%patch -P523
+%patch -P528
+%patch -P571
+%patch -P574
+%patch -P112
+%patch -P581
+%patch -P541
+%patch -P12
 
 pushd %{top_level_dir_name}
 # Add crypto policy and FIPS support
-%patch1001 -p1
+%patch -P1001 -p1
 # nss.cfg PKCS11 support; must come last as it also alters java.security
-%patch1000 -p1
+%patch -P1000 -p1
 # cacerts patch; must follow FIPS patch as it also alters java.security
-%patch539 -p1
+%patch -P539 -p1
 popd
 
 # RPM-only fixes
-%patch600
-%patch1003
+%patch -P600
+%patch -P1003
 
 # RHEL-only patches
 %if ! 0%{?fedora} && 0%{?rhel} <= 7
-%patch534
+%patch -P534
 %endif
 
 # Shenandoah patches
@@ -2873,6 +2898,88 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Mon Apr 08 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b08-2
+- Update to shenandoah-jdk8u412-b08 (GA)
+- Update release notes for shenandoah-8u412-b08.
+- Complete release note for Certainly roots
+- Switch to GA mode.
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2024-04-16 @ 1pm PT. **
+- Resolves: RHEL-32409
+
+* Fri Apr 05 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b07-0.2.ea
+- Update to shenandoah-jdk8u412-b07 (EA)
+- Require tzdata 2024a due to upstream inclusion of JDK-8322725
+- Only require tzdata 2023d for now as 2024a is unavailable in buildroot
+- Sync the copy of the portable specfile with the latest update
+- Related: RHEL-30934
+
+* Fri Mar 22 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b01-0.2.ea
+- Turn off xz multi-threading on i686 as it fails with an out of memory error
+- Move to upstream tag style (shenandoah8ux-by) in preparation for eventually moving back to official sources
+- generate_source_tarball.sh: Rename JCONSOLE_JS_PATCH{,_DEFAULT} to JCONSOLE_PATCH{,_DEFAULT} for brevity
+- generate_source_tarball.sh: Adapt OPENJDK_LATEST logic to work with 8u Shenandoah fork
+- generate_source_tarball.sh: Adapt version logic to work with 8u
+- generate_source_tarball.sh: Add quoting for SCRIPT_DIR and JCONSOLE_PATCH (SC2086)
+- generate_source_tarball.sh: Update examples in header for clarity
+- generate_source_tarball.sh: Create directory in TMPDIR when using WITH_TEMP
+- generate_source_tarball.sh: Only add --depth=1 on non-local repositories
+- Move maintenance scripts to a scripts subdirectory
+- icedtea_sync.sh: Update with a VCS mode that retrieves sources from a Mercurial repository
+- discover_trees.sh: Set compile-command and indentation instructions for Emacs
+- discover_trees.sh: shellcheck: Do not use -o (SC2166)
+- discover_trees.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- discover_trees.sh: shellcheck: Double-quote variable references (SC2086)
+- generate_source_tarball.sh: Add authorship
+- icedtea_sync.sh: Set compile-command and indentation instructions for Emacs
+- icedtea_sync.sh: shellcheck: Double-quote variable references (SC2086)
+- icedtea_sync.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- openjdk_news.sh: Set compile-command and indentation instructions for Emacs
+- openjdk_news.sh: shellcheck: Double-quote variable references (SC2086)
+- openjdk_news.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- openjdk_news.sh: shellcheck: Remove deprecated egrep usage (SC2196)
+- Remove obsolete file generate_singlerepo_source_tarball.sh
+- Remove obsolete file get_sources.sh
+- Remove obsolete file update_main_sources.sh
+- generate_source_tarball.sh: Handle an existing checkout
+- generate_source_tarball.sh: Sync indentation with java-21-openjdk version
+- generate_source_tarball.sh: Support using a subdirectory via TO_COMPRESS
+- Sync patch set with portable build
+- Related: RHEL-30934
+
+* Fri Mar 22 2024 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.412.b01-0.2.ea
+- Invoke xz in multi-threaded mode
+- generate_source_tarball.sh: Add WITH_TEMP environment variable
+- generate_source_tarball.sh: Multithread xz on all available cores
+- generate_source_tarball.sh: Add OPENJDK_LATEST environment variable
+- generate_source_tarball.sh: Update comment about tarball naming
+- generate_source_tarball.sh: Reformat comment header
+- generate_source_tarball.sh: Reformat and update help output
+- generate_source_tarball.sh: Do a shallow clone, for speed
+- generate_source_tarball.sh: Eliminate some removal prompting
+- generate_source_tarball.sh: Make tarball reproducible
+- generate_source_tarball.sh: Prefix temporary directory with temp-
+- generate_source_tarball.sh: Remove temporary directory exit conditions
+- generate_source_tarball.sh: Set compile-command in Emacs
+- generate_source_tarball.sh: Remove REPO_NAME from FILE_NAME_ROOT
+- generate_source_tarball.sh: Move PROJECT_NAME and REPO_NAME checks
+- generate_source_tarball.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- generate_source_tarball.sh: shellcheck: Double-quote variable references (SC2086)
+- generate_source_tarball.sh: shellcheck: Do not use -a (SC2166)
+- generate_source_tarball.sh: shellcheck: Do not use $ on arithmetic variables (SC2004)
+- Use backward-compatible patch syntax
+- generate_source_tarball.sh: Ignore -ga tags with OPENJDK_LATEST
+- generate_source_tarball.sh: Remove trailing period in echo
+- generate_source_tarball.sh: Use long-style argument to grep
+- generate_source_tarball.sh: Add license
+- generate_source_tarball.sh: Add indentation instructions for Emacs
+- Related: RHEL-30934
+
+* Thu Mar 21 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b01-0.2.ea
+- Update to shenandoah-jdk8u412-b01 (EA)
+- Switch to EA mode.
+- Related: RHEL-30934
+
 * Thu Jan 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.402.b06-0.2.ea
 - Update to shenandoah-jdk8u402-b06 (GA)
 - Update release notes for shenandoah-8u402-b06.
