@@ -299,7 +299,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u422-b05
+%global openjdk_revision 8u432-b06
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -1438,10 +1438,6 @@ Patch539: pr2888-rh2055274-support_system_cacerts-%{cacertsver}.patch
 Patch541: rh1684077-openjdk_should_depend_on_pcsc-lite-libs_instead_of_pcsc-lite-devel.patch
 # RH1750419: Enable build of speculative store bypass hardened alt-java (CVE-2018-3639)
 Patch600: rh1750419-redhat_alt_java.patch
-# JDK-8281098, PR3836: Extra compiler flags not passed to adlc build
-Patch112: jdk8281098-pr3836-pass_compiler_flags_to_adlc.patch
-# JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
-Patch12: jdk8186464-rh1433262-zip64_failure.patch
 
 #############################################
 #
@@ -1486,6 +1482,10 @@ Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
 Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 # JDK-8257794: Zero: assert(istate->_stack_limit == istate->_thread->last_Java_sp() + 1) failed: wrong on Linux/x86_32
 Patch581: jdk8257794-remove_broken_assert.patch
+# JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
+Patch12: jdk8186464-rh1433262-zip64_failure.patch
+# JDK-8328999, RH2251025 - Update GIFlib to 5.2.2 (PR#571)
+Patch13: jdk8328999-update_giflib_5.2.2.patch
 
 #############################################
 #
@@ -1594,7 +1594,7 @@ BuildRequires: libpng-devel
 BuildRequires: zlib-devel
 %else
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
-Provides: bundled(giflib) = 5.2.1
+Provides: bundled(giflib) = 5.2.2
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
 Provides: bundled(lcms2) = 2.11.0
 # Version in jdk/src/share/native/sun/awt/image/jpeg/jpeglib.h
@@ -1602,7 +1602,7 @@ Provides: bundled(libjpeg) = 6b
 # Version in jdk/src/share/native/sun/awt/libpng/png.h
 Provides: bundled(libpng) = 1.6.39
 # Version in jdk/src/share/native/java/util/zip/zlib/zlib.h
-Provides: bundled(zlib) = 1.2.13
+Provides: bundled(zlib) = 1.3.1
 %endif
 
 # this is always built, also during debug-only build
@@ -1933,7 +1933,9 @@ sh %{SOURCE12}
 # AArch64 fixes
 
 # x86 fixes
-%patch -P105
+pushd %{top_level_dir_name}
+%patch -P105 -p1
+popd
 
 # Upstreamable fixes
 %patch -P512
@@ -1941,12 +1943,12 @@ sh %{SOURCE12}
 %patch -P528
 %patch -P571
 %patch -P574
-%patch -P112
 %patch -P581
 %patch -P541
 %patch -P12
 pushd %{top_level_dir_name}
 %patch -P502 -p1
+%patch -P13 -p1
 popd
 
 pushd %{top_level_dir_name}
@@ -2671,7 +2673,22 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
-* Wed Jul 10 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b05-1.1
+* Fri Oct 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-1
+- Update to shenandoah-jdk8u432-b06 (GA)
+- Update release notes for shenandoah-8u432-b06.
+- Drop JDK-828109{6,7,8}/PR3836 patch following integration of upstream version
+- Regenerate JDK-8199936/PR3533 patch following JDK-828109{6,7,8} integration
+- Bump version of bundled zlib to 1.3.1 following JDK-8324632
+- Include backport of JDK-8328999 to update giflib to 5.2.2
+- Bump version of bundled giflib to 5.2.2 following JDK-8328999
+- Add build scripts to repository to ease remembering all CentOS & RHEL targets and options
+- Sync the copy of the portable specfile with the latest update
+- Resolves: RHEL-58791
+- Resolves: RHEL-62278
+- Resolves: RHEL-61285
+- ** This tarball is embargoed until 2024-10-15 @ 1pm PT. **
+
+* Wed Jul 10 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b05-1
 - Update to shenandoah-jdk8u422-b05 (GA)
 - Update release notes for shenandoah-8u422-b05.
 - Rebase PR2462 patch following patched hunk being removed by JDK-8322106
