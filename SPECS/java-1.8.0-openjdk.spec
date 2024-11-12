@@ -355,7 +355,7 @@
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
 # rpmrelease numbering must start at 2 to be later than the 9.2 RPM
-%global rpmrelease      2
+%global rpmrelease      3
 # Settings used by the portable build
 %global portablerelease 1
 %global portablesuffix el8
@@ -2915,7 +2915,13 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
-* Fri Oct 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-1
+* Sat Oct 19 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-3
+- Rebuild RPM for 9.5 0day release
+- Related: RHEL-58794
+- Related: RHEL-62280
+- Related: RHEL-61287
+
+* Fri Oct 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-2
 - Update to shenandoah-jdk8u432-b06 (GA)
 - Update release notes for shenandoah-8u432-b06.
 - Drop JDK-828109{6,7,8}/PR3836 patch following integration of upstream version
