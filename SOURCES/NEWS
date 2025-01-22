@@ -3,6 +3,55 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u442 (2025-01-21):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u442
+
+* Changes
+  - JDK-8048003: test/compiler/8009761/Test8009761.java failed with: java.lang.RuntimeException: static java.lang.Object Test8009761.m3(boolean,boolean) not compiled
+  - JDK-8058322: Zero name_index item of MethodParameters attribute cause MalformedParameterException.
+  - JDK-8066708: JMXStartStopTest fails to connect to port 38112
+  - JDK-8133287: (fs) java/nio/file/Files/probeContentType/ParallelProbes.java should use othervm mode
+  - JDK-8189687: Swing: Invalid position of candidate pop-up of InputMethod in Hi-DPI on Windows
+  - JDK-8209023: fix 2 compiler tests to avoid JDK-8208690
+  - JDK-8239312: [macOS] javax/swing/JFrame/NSTexturedJFrame/NSTexturedJFrame.java
+  - JDK-8260380: Upgrade to LittleCMS 2.12
+  - JDK-8315731: Open source several Swing Text related tests
+  - JDK-8335428: Enhanced Building of Processes
+  - JDK-8335912, JDK-8337499: Add an operation mode to the jar command when extracting to not overwriting existing files
+  - JDK-8336564: Enhance mask blit functionality redux
+  - JDK-8338402: GHA: some of bundles may not get removed
+  - JDK-8339133: [8u] Profiler crashes at guarantee(is_result_safe || is_in_asgct()): unsafe access to zombie method
+  - JDK-8339180: Enhanced Building of Processes: Follow-on Issue
+  - JDK-8339394: Bump update version of OpenJDK: 8u442
+  - JDK-8339882: Replace ThreadLocalStorage::thread with Thread::current_or_null in jdk8 backport of JDK-8183925
+  - JDK-8340815: Add SECURITY.md file
+  - JDK-8342822: jdk8u432-b06 does not compile on AIX
+  - JDK-8342841: [8u] Separate jdk_security_infra tests from jdk_tier1
+
+Notes on individual issues:
+===========================
+
+core-libs/java.util.jar:
+
+JDK-8335912/JDK-8337499: Add an operation mode to the jar command when extracting to not overwriting existing files
+===================================================================================================================
+In previous OpenJDK releases, when the jar tool extracted files from
+an archive, it would overwrite any existing files with the same name
+in the target directory. With this release, a new option ('-k' or
+'--keep-old-files') may be specified so that existing files are not
+overwritten.
+
+The option may be specified in short or long option form, as in the
+following examples:
+
+* jar xkf foo.jar
+* jar --extract --keep-old-files --file foo.jar
+
+By default, the old behaviour remains in place and files will be
+overwritten.
+
 New in release OpenJDK 8u432 (2024-10-15):
 ===========================================
 Live versions of these release notes can be found at:

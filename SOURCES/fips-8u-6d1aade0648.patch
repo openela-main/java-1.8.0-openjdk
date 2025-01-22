@@ -1,5 +1,5 @@
 diff --git a/common/autoconf/configure.ac b/common/autoconf/configure.ac
-index 151e5a109f8..a8761b500e0 100644
+index 151e5a109f..a8761b500e 100644
 --- a/common/autoconf/configure.ac
 +++ b/common/autoconf/configure.ac
 @@ -212,6 +212,7 @@ LIB_SETUP_FREETYPE
@@ -11,10 +11,10 @@ index 151e5a109f8..a8761b500e0 100644
  LIB_SETUP_ON_WINDOWS
  
 diff --git a/common/autoconf/generated-configure.sh b/common/autoconf/generated-configure.sh
-index 71fabf4dbb3..17f4f50673d 100644
+index c6144b1968..9ac55d20d3 100644
 --- a/common/autoconf/generated-configure.sh
 +++ b/common/autoconf/generated-configure.sh
-@@ -651,6 +651,9 @@ LLVM_CONFIG
+@@ -655,6 +655,9 @@ ENABLE_LIBFFI_BUNDLING
  LIBFFI_LIBS
  LIBFFI_CFLAGS
  STATIC_CXX_SETTING
@@ -24,15 +24,15 @@ index 71fabf4dbb3..17f4f50673d 100644
  LIBDL
  LIBM
  LIBZIP_CAN_USE_MMAP
-@@ -1111,6 +1114,7 @@ with_fontconfig
+@@ -1119,6 +1122,7 @@ with_fontconfig
  with_fontconfig_include
  with_giflib
  with_zlib
 +enable_sysconf_nss
  with_stdc__lib
- with_msvcr_dll
- with_msvcp_dll
-@@ -1218,6 +1222,8 @@ FREETYPE_CFLAGS
+ with_libffi
+ with_libffi_include
+@@ -1232,6 +1236,8 @@ FREETYPE_CFLAGS
  FREETYPE_LIBS
  ALSA_CFLAGS
  ALSA_LIBS
@@ -41,16 +41,16 @@ index 71fabf4dbb3..17f4f50673d 100644
  LIBFFI_CFLAGS
  LIBFFI_LIBS
  CCACHE'
-@@ -1871,6 +1877,8 @@ Optional Features:
+@@ -1874,6 +1880,8 @@ Optional Features:
                            disable bundling of the freetype library with the
                            build result [enabled on Windows or when using
                            --with-freetype, disabled otherwise]
 +  --enable-sysconf-nss    build the System Configurator (libsysconf) using the
 +                          system NSS library if available [disabled]
-   --enable-sjavac         use sjavac to do fast incremental compiles
-                           [disabled]
-   --disable-precompiled-headers
-@@ -2115,6 +2123,8 @@ Some influential environment variables:
+   --enable-libffi-bundling
+                           enable bundling of libffi.so to make the built JDK
+                           runnable on more systems
+@@ -2129,6 +2137,8 @@ Some influential environment variables:
                linker flags for FREETYPE, overriding pkg-config
    ALSA_CFLAGS C compiler flags for ALSA, overriding pkg-config
    ALSA_LIBS   linker flags for ALSA, overriding pkg-config
@@ -59,60 +59,7 @@ index 71fabf4dbb3..17f4f50673d 100644
    LIBFFI_CFLAGS
                C compiler flags for LIBFFI, overriding pkg-config
    LIBFFI_LIBS linker flags for LIBFFI, overriding pkg-config
-@@ -2879,6 +2889,52 @@ $as_echo "$ac_res" >&6; }
-   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
- 
- } # ac_fn_c_check_header_compile
-+
-+# ac_fn_c_try_link LINENO
-+# -----------------------
-+# Try to link conftest.$ac_ext, and return whether this succeeded.
-+ac_fn_c_try_link ()
-+{
-+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-+  rm -f conftest.$ac_objext conftest$ac_exeext
-+  if { { ac_try="$ac_link"
-+case "(($ac_try" in
-+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-+  *) ac_try_echo=$ac_try;;
-+esac
-+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-+$as_echo "$ac_try_echo"; } >&5
-+  (eval "$ac_link") 2>conftest.err
-+  ac_status=$?
-+  if test -s conftest.err; then
-+    grep -v '^ *+' conftest.err >conftest.er1
-+    cat conftest.er1 >&5
-+    mv -f conftest.er1 conftest.err
-+  fi
-+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-+  test $ac_status = 0; } && {
-+	 test -z "$ac_c_werror_flag" ||
-+	 test ! -s conftest.err
-+       } && test -s conftest$ac_exeext && {
-+	 test "$cross_compiling" = yes ||
-+	 test -x conftest$ac_exeext
-+       }; then :
-+  ac_retval=0
-+else
-+  $as_echo "$as_me: failed program was:" >&5
-+sed 's/^/| /' conftest.$ac_ext >&5
-+
-+	ac_retval=1
-+fi
-+  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
-+  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
-+  # interfere with the next link command; also delete a directory that is
-+  # left behind by Apple's compiler.  We do this before executing the actions.
-+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
-+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-+  as_fn_set_status $ac_retval
-+
-+} # ac_fn_c_try_link
- cat >config.log <<_ACEOF
- This file contains any messages produced by compilers while
- running configure, to aid debugging if configure makes a mistake.
-@@ -4049,6 +4105,11 @@ fi
+@@ -4109,6 +4119,11 @@ fi
  
  
  
@@ -124,7 +71,7 @@ index 71fabf4dbb3..17f4f50673d 100644
  #
  # Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
  # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-@@ -49304,6 +49365,157 @@ fi
+@@ -50141,6 +50156,157 @@ fi
    LIBS="$save_LIBS"
  
  
@@ -246,7 +193,7 @@ index 71fabf4dbb3..17f4f50673d 100644
 +/* end confdefs.h.  */
 +#include <nss3/pk11pub.h>
 +int
-+main ()
++main (void)
 +{
 +SECMOD_GetSystemFIPSEnabled()
 +  ;
@@ -283,10 +230,10 @@ index 71fabf4dbb3..17f4f50673d 100644
    #
    # statically link libstdc++ before C++ ABI is stablized on Linux unless
 diff --git a/common/autoconf/libraries.m4 b/common/autoconf/libraries.m4
-index 6efae578ea9..0080846255b 100644
+index 4ed8b4fdd6..caf293be72 100644
 --- a/common/autoconf/libraries.m4
 +++ b/common/autoconf/libraries.m4
-@@ -1067,3 +1067,63 @@ AC_DEFUN_ONCE([LIB_SETUP_ON_WINDOWS],
+@@ -1216,3 +1216,63 @@ AC_DEFUN_ONCE([LIB_SETUP_ON_WINDOWS],
      BASIC_DEPRECATED_ARG_WITH([dxsdk-include])
    fi
  ])
@@ -351,12 +298,12 @@ index 6efae578ea9..0080846255b 100644
 +  AC_SUBST(USE_SYSCONF_NSS)
 +])
 diff --git a/common/autoconf/spec.gmk.in b/common/autoconf/spec.gmk.in
-index 506cf617087..7241593b1a4 100644
+index 8da3ac32a0..4d081d1b84 100644
 --- a/common/autoconf/spec.gmk.in
 +++ b/common/autoconf/spec.gmk.in
-@@ -312,6 +312,10 @@ CUPS_CFLAGS:=@CUPS_CFLAGS@
- ALSA_LIBS:=@ALSA_LIBS@
- ALSA_CFLAGS:=@ALSA_CFLAGS@
+@@ -317,6 +317,10 @@ ENABLE_LIBFFI_BUNDLING:=@ENABLE_LIBFFI_BUNDLING@
+ LIBFFI_LIB_DIR:=@LIBFFI_LIB_DIR@
+ LIBFFI_LIB_FILE:=@LIBFFI_LIB_FILE@
  
 +USE_SYSCONF_NSS:=@USE_SYSCONF_NSS@
 +NSS_LIBS:=@NSS_LIBS@
@@ -366,7 +313,7 @@ index 506cf617087..7241593b1a4 100644
  
  # Source file for cacerts
 diff --git a/common/bin/compare_exceptions.sh.incl b/common/bin/compare_exceptions.sh.incl
-index 3b79a526f56..d2a0e39b206 100644
+index 3b79a526f5..d2a0e39b20 100644
 --- a/common/bin/compare_exceptions.sh.incl
 +++ b/common/bin/compare_exceptions.sh.incl
 @@ -280,6 +280,7 @@ ACCEPTED_SMALL_SIZE_DIFF="
@@ -402,7 +349,7 @@ index 3b79a526f56..d2a0e39b206 100644
  ./jre/lib/sparcv9/libunpack.so
  ./jre/lib/sparcv9/libverify.so
 diff --git a/common/nb_native/nbproject/configurations.xml b/common/nb_native/nbproject/configurations.xml
-index d2beed0b93a..3b6aef98d9a 100644
+index d2beed0b93..3b6aef98d9 100644
 --- a/common/nb_native/nbproject/configurations.xml
 +++ b/common/nb_native/nbproject/configurations.xml
 @@ -53,6 +53,9 @@
@@ -428,10 +375,10 @@ index d2beed0b93a..3b6aef98d9a 100644
              ex="false"
              tool="0"
 diff --git a/jdk/make/lib/SecurityLibraries.gmk b/jdk/make/lib/SecurityLibraries.gmk
-index b0b85d80448..47a41d7518d 100644
+index 84abb7e76b..cb4531b880 100644
 --- a/jdk/make/lib/SecurityLibraries.gmk
 +++ b/jdk/make/lib/SecurityLibraries.gmk
-@@ -289,3 +289,34 @@ ifeq ($(OPENJDK_TARGET_OS), solaris)
+@@ -303,3 +303,34 @@ ifeq ($(OPENJDK_TARGET_OS), solaris)
  
    endif
  endif
@@ -468,7 +415,7 @@ index b0b85d80448..47a41d7518d 100644
 +
 diff --git a/jdk/make/mapfiles/libsystemconf/mapfile-vers b/jdk/make/mapfiles/libsystemconf/mapfile-vers
 new file mode 100644
-index 00000000000..a65ceb3b78c
+index 0000000000..a65ceb3b78
 --- /dev/null
 +++ b/jdk/make/mapfiles/libsystemconf/mapfile-vers
 @@ -0,0 +1,35 @@
@@ -508,7 +455,7 @@ index 00000000000..a65ceb3b78c
 +		*;
 +};
 diff --git a/jdk/src/share/classes/java/security/Security.java b/jdk/src/share/classes/java/security/Security.java
-index 0db09da7061..813b907db3e 100644
+index 0db09da706..813b907db3 100644
 --- a/jdk/src/share/classes/java/security/Security.java
 +++ b/jdk/src/share/classes/java/security/Security.java
 @@ -30,6 +30,8 @@ import java.util.*;
@@ -640,7 +587,7 @@ index 0db09da7061..813b907db3e 100644
      /*
 diff --git a/jdk/src/share/classes/java/security/SystemConfigurator.java b/jdk/src/share/classes/java/security/SystemConfigurator.java
 new file mode 100644
-index 00000000000..a24a0445db2
+index 0000000000..a24a0445db
 --- /dev/null
 +++ b/jdk/src/share/classes/java/security/SystemConfigurator.java
 @@ -0,0 +1,248 @@
@@ -894,7 +841,7 @@ index 00000000000..a24a0445db2
 +}
 diff --git a/jdk/src/share/classes/sun/misc/JavaSecuritySystemConfiguratorAccess.java b/jdk/src/share/classes/sun/misc/JavaSecuritySystemConfiguratorAccess.java
 new file mode 100644
-index 00000000000..5c30a8b29c7
+index 0000000000..5c30a8b29c
 --- /dev/null
 +++ b/jdk/src/share/classes/sun/misc/JavaSecuritySystemConfiguratorAccess.java
 @@ -0,0 +1,31 @@
@@ -930,7 +877,7 @@ index 00000000000..5c30a8b29c7
 +    boolean isPlainKeySupportEnabled();
 +}
 diff --git a/jdk/src/share/classes/sun/misc/SharedSecrets.java b/jdk/src/share/classes/sun/misc/SharedSecrets.java
-index f065a2c685d..0dafe6f59cf 100644
+index f065a2c685..0dafe6f59c 100644
 --- a/jdk/src/share/classes/sun/misc/SharedSecrets.java
 +++ b/jdk/src/share/classes/sun/misc/SharedSecrets.java
 @@ -31,6 +31,7 @@ import java.io.Console;
@@ -967,7 +914,7 @@ index f065a2c685d..0dafe6f59cf 100644
  }
 diff --git a/jdk/src/share/classes/sun/security/pkcs11/FIPSKeyImporter.java b/jdk/src/share/classes/sun/security/pkcs11/FIPSKeyImporter.java
 new file mode 100644
-index 00000000000..14d19450390
+index 0000000000..14d1945039
 --- /dev/null
 +++ b/jdk/src/share/classes/sun/security/pkcs11/FIPSKeyImporter.java
 @@ -0,0 +1,290 @@
@@ -1262,7 +1209,7 @@ index 00000000000..14d19450390
 +    }
 +}
 diff --git a/jdk/src/share/classes/sun/security/pkcs11/SunPKCS11.java b/jdk/src/share/classes/sun/security/pkcs11/SunPKCS11.java
-index fedcd7743ef..f9d70863bd1 100644
+index fedcd7743e..f9d70863bd 100644
 --- a/jdk/src/share/classes/sun/security/pkcs11/SunPKCS11.java
 +++ b/jdk/src/share/classes/sun/security/pkcs11/SunPKCS11.java
 @@ -26,6 +26,9 @@
@@ -1366,7 +1313,7 @@ index fedcd7743ef..f9d70863bd1 100644
              if (config.getHandleStartupErrors() == Config.ERR_IGNORE_ALL) {
                  throw new UnsupportedOperationException
 diff --git a/jdk/src/share/classes/sun/security/pkcs11/wrapper/PKCS11.java b/jdk/src/share/classes/sun/security/pkcs11/wrapper/PKCS11.java
-index 2e42d1d9fb0..1b7eed1c656 100644
+index 2e42d1d9fb..1b7eed1c65 100644
 --- a/jdk/src/share/classes/sun/security/pkcs11/wrapper/PKCS11.java
 +++ b/jdk/src/share/classes/sun/security/pkcs11/wrapper/PKCS11.java
 @@ -49,6 +49,7 @@ package sun.security.pkcs11.wrapper;
@@ -1493,7 +1440,7 @@ index 2e42d1d9fb0..1b7eed1c656 100644
 +}
  }
 diff --git a/jdk/src/share/classes/sun/security/ssl/KeyManagerFactoryImpl.java b/jdk/src/share/classes/sun/security/ssl/KeyManagerFactoryImpl.java
-index ffee2c1603b..98119479823 100644
+index ffee2c1603..9811947982 100644
 --- a/jdk/src/share/classes/sun/security/ssl/KeyManagerFactoryImpl.java
 +++ b/jdk/src/share/classes/sun/security/ssl/KeyManagerFactoryImpl.java
 @@ -33,8 +33,13 @@ import java.security.KeyStore.*;
@@ -1532,7 +1479,7 @@ index ffee2c1603b..98119479823 100644
                          "FIPS mode: KeyStore must be " +
                          "from provider " + SunJSSE.cryptoProvider.getName());
 diff --git a/jdk/src/share/classes/sun/security/ssl/SSLContextImpl.java b/jdk/src/share/classes/sun/security/ssl/SSLContextImpl.java
-index 820e10164fc..6fe2c29389f 100644
+index 820e10164f..6fe2c29389 100644
 --- a/jdk/src/share/classes/sun/security/ssl/SSLContextImpl.java
 +++ b/jdk/src/share/classes/sun/security/ssl/SSLContextImpl.java
 @@ -31,6 +31,7 @@ import java.security.*;
@@ -1630,7 +1577,7 @@ index 820e10164fc..6fe2c29389f 100644
                          ProtocolVersion.TLS13,
                          ProtocolVersion.TLS12,
 diff --git a/jdk/src/share/classes/sun/security/ssl/SunJSSE.java b/jdk/src/share/classes/sun/security/ssl/SunJSSE.java
-index 2845dc37938..52337a7b6cf 100644
+index 2845dc3793..52337a7b6c 100644
 --- a/jdk/src/share/classes/sun/security/ssl/SunJSSE.java
 +++ b/jdk/src/share/classes/sun/security/ssl/SunJSSE.java
 @@ -30,6 +30,8 @@ import static sun.security.util.SecurityConstants.PROVIDER_VER;
@@ -1659,7 +1606,7 @@ index 2845dc37938..52337a7b6cf 100644
              "sun.security.ssl.SSLContextImpl$TLSContext");
          if (isfips == false) {
 diff --git a/jdk/src/share/lib/security/java.security-aix b/jdk/src/share/lib/security/java.security-aix
-index 7a93d4e6b59..681a24b905d 100644
+index 37bca2df46..730212b601 100644
 --- a/jdk/src/share/lib/security/java.security-aix
 +++ b/jdk/src/share/lib/security/java.security-aix
 @@ -287,6 +287,13 @@ package.definition=sun.,\
@@ -1677,7 +1624,7 @@ index 7a93d4e6b59..681a24b905d 100644
  # Determines the default key and trust manager factory algorithms for
  # the javax.net.ssl package.
 diff --git a/jdk/src/share/lib/security/java.security-linux b/jdk/src/share/lib/security/java.security-linux
-index 145a84f94cf..789c19a8cba 100644
+index 9bb8e992fb..a1b3943b11 100644
 --- a/jdk/src/share/lib/security/java.security-linux
 +++ b/jdk/src/share/lib/security/java.security-linux
 @@ -75,6 +75,14 @@ security.provider.7=com.sun.security.sasl.Provider
@@ -1722,7 +1669,7 @@ index 145a84f94cf..789c19a8cba 100644
  # Determines the default key and trust manager factory algorithms for
  # the javax.net.ssl package.
 diff --git a/jdk/src/share/lib/security/java.security-macosx b/jdk/src/share/lib/security/java.security-macosx
-index 35fa140d7a5..d4da666af3b 100644
+index 7a765742e6..5abd95fff8 100644
 --- a/jdk/src/share/lib/security/java.security-macosx
 +++ b/jdk/src/share/lib/security/java.security-macosx
 @@ -290,6 +290,13 @@ package.definition=sun.,\
@@ -1740,7 +1687,7 @@ index 35fa140d7a5..d4da666af3b 100644
  # Determines the default key and trust manager factory algorithms for
  # the javax.net.ssl package.
 diff --git a/jdk/src/share/lib/security/java.security-solaris b/jdk/src/share/lib/security/java.security-solaris
-index f79ba37ddb9..300132384a1 100644
+index f0100336f5..2f4c6c2fd6 100644
 --- a/jdk/src/share/lib/security/java.security-solaris
 +++ b/jdk/src/share/lib/security/java.security-solaris
 @@ -288,6 +288,13 @@ package.definition=sun.,\
@@ -1758,7 +1705,7 @@ index f79ba37ddb9..300132384a1 100644
  # Determines the default key and trust manager factory algorithms for
  # the javax.net.ssl package.
 diff --git a/jdk/src/share/lib/security/java.security-windows b/jdk/src/share/lib/security/java.security-windows
-index d70503ce95f..64db5a5cd1e 100644
+index e51bdece13..b4a509753b 100644
 --- a/jdk/src/share/lib/security/java.security-windows
 +++ b/jdk/src/share/lib/security/java.security-windows
 @@ -290,6 +290,13 @@ package.definition=sun.,\
@@ -1777,7 +1724,7 @@ index d70503ce95f..64db5a5cd1e 100644
  # the javax.net.ssl package.
 diff --git a/jdk/src/solaris/native/java/security/systemconf.c b/jdk/src/solaris/native/java/security/systemconf.c
 new file mode 100644
-index 00000000000..8dcb7d9073f
+index 0000000000..8dcb7d9073
 --- /dev/null
 +++ b/jdk/src/solaris/native/java/security/systemconf.c
 @@ -0,0 +1,224 @@

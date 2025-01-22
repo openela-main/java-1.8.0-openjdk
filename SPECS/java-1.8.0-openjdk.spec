@@ -136,7 +136,7 @@
 # Set of architectures where we verify backtraces with gdb
 %global gdb_arches %{jit_arches} %{zero_arches}
 # Set of architectures for which we have a portable build
-%global portable_build_arches %{aarch64} %{ix86} %{power64} x86_64
+%global portable_build_arches %{aarch64} %{ix86} %{power64} x86_64 %{zero_arches}
 # Architecture on which we run Java only tests
 # Temporarily include zero_arches until we can use a portable Zero build
 %global jdk_test_arch x86_64 %{zero_arches}
@@ -308,7 +308,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u432-b06
+%global openjdk_revision 8u442-b06
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -355,10 +355,11 @@
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
 # rpmrelease numbering must start at 2 to be later than the 9.2 RPM
-%global rpmrelease      3
+%global rpmrelease      2
 # Settings used by the portable build
 %global portablerelease 1
-%global portablesuffix el8
+%global portablerhel 8
+%global portablesuffix el%{portablerhel}
 %global portablebuilddir /builddir/build/BUILD
 
 # Define milestone (EA for pre-releases, GA ("fcs") for releases)
@@ -404,7 +405,7 @@
 # fix for https://bugzilla.redhat.com/show_bug.cgi?id=1111349
 #         https://bugzilla.redhat.com/show_bug.cgi?id=1590796#c14
 #         https://bugzilla.redhat.com/show_bug.cgi?id=1655938
-%global _privatelibs libattach[.]so.*|libawt_headless[.]so.*|libawt[.]so.*|libawt_xawt[.]so.*|libdt_socket[.]so.*|libfontmanager[.]so.*|libhprof[.]so.*|libinstrument[.]so.*|libj2gss[.]so.*|libj2pcsc[.]so.*|libj2pkcs11[.]so.*|libjaas_unix[.]so.*|libjava_crw_demo[.]so.*|libjdwp[.]so.*|libjli[.]so.*|libjsdt[.]so.*|libjsoundalsa[.]so.*|libjsound[.]so.*|liblcms[.]so.*|libmanagement[.]so.*|libmlib_image[.]so.*|libnet[.]so.*|libnio[.]so.*|libnpt[.]so.*|libsaproc[.]so.*|libsctp[.]so.*|libsplashscreen[.]so.*|libsunec[.]so.*|libsystemconf[.]so.*|libunpack[.]so.*|libzip[.]so.*|lib[.]so\\(SUNWprivate_.*%{jpeg_lib}
+%global _privatelibs libattach[.]so.*|libawt_headless[.]so.*|libawt[.]so.*|libawt_xawt[.]so.*|libdt_socket[.]so.*|libffi[.]so.*|libfontmanager[.]so.*|libhprof[.]so.*|libinstrument[.]so.*|libj2gss[.]so.*|libj2pcsc[.]so.*|libj2pkcs11[.]so.*|libjaas_unix[.]so.*|libjava_crw_demo[.]so.*|libjdwp[.]so.*|libjli[.]so.*|libjsdt[.]so.*|libjsoundalsa[.]so.*|libjsound[.]so.*|liblcms[.]so.*|libmanagement[.]so.*|libmlib_image[.]so.*|libnet[.]so.*|libnio[.]so.*|libnpt[.]so.*|libsaproc[.]so.*|libsctp[.]so.*|libsplashscreen[.]so.*|libsunec[.]so.*|libsystemconf[.]so.*|libunpack[.]so.*|libzip[.]so.*|lib[.]so\\(SUNWprivate_.*%{jpeg_lib}
 %global _publiclibs libjawt[.]so.*|libjava[.]so.*|libjvm[.]so.*|libverify[.]so.*|libjsig[.]so.*
 %if %is_system_jdk
 %global __provides_exclude ^(%{_privatelibs})$
@@ -922,6 +923,11 @@ exit 0
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libawt.so
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libawt_headless.so
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libdt_socket.so
+%ifarch %{zero_arches}
+%if 0%{?rhel} != %{portablerhel}
+%{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libffi.so.*
+%endif
+%endif
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libfontmanager.so
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libhprof.so
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libinstrument.so
@@ -1083,7 +1089,15 @@ exit 0
 %{_jvmdir}/%{sdkdir -- %{?1}}/bin/wsimport
 %{_jvmdir}/%{sdkdir -- %{?1}}/bin/xjc
 %{_jvmdir}/%{sdkdir -- %{?1}}/include/*
-%{_jvmdir}/%{sdkdir -- %{?1}}/lib/%{archinstall}
+%dir %{_jvmdir}/%{sdkdir -- %{?1}}/lib/%{archinstall}
+%dir %{_jvmdir}/%{sdkdir -- %{?1}}/lib/%{archinstall}/jli
+%ifarch %{zero_arches}
+%if 0%{?rhel} != %{portablerhel}
+%{_jvmdir}/%{sdkdir -- %{?1}}/lib/%{archinstall}/libffi.so.*
+%endif
+%endif
+%{_jvmdir}/%{sdkdir -- %{?1}}/lib/%{archinstall}/libjawt.so
+%{_jvmdir}/%{sdkdir -- %{?1}}/lib/%{archinstall}/jli/libjli.so
 %{_jvmdir}/%{sdkdir -- %{?1}}/lib/ct.sym
 %if %{with_systemtap}
 %{_jvmdir}/%{sdkdir -- %{?1}}/tapset
@@ -1569,6 +1583,9 @@ Patch581: jdk8257794-remove_broken_assert.patch
 Patch12: jdk8186464-rh1433262-zip64_failure.patch
 # JDK-8328999, RH2251025 - Update GIFlib to 5.2.2 (PR#571)
 Patch13: jdk8328999-update_giflib_5.2.2.patch
+# JDK-8141590 - Cannot build Zero with devkit
+Patch14: jdk8141590-bundle_libffi.patch
+Patch15: jdk8141590-bundle_libffi-followup.patch
 
 #############################################
 #
@@ -2007,6 +2024,8 @@ popd
 pushd %{top_level_dir_name}
 %patch -P502 -p1
 %patch -P13 -p1
+%patch -P14 -p1
+%patch -P15 -p1
 popd
 
 pushd %{top_level_dir_name}
@@ -2317,17 +2336,25 @@ for suffix in %{build_loop} ; do
     # TODO: should verify checksums when using packages from buildroot
     tar -xJf ${jdkzip}
     mv %{name}* ${installdir}
+%ifarch %{zero_arches}
+    # We do not need the local copy of libffi.so if we are building on the same platform as the portable
+%if 0%{?rhel} == %{portablerhel}
+    rm -vf ${installdir}/{,jre/}lib/%{archinstall}/libffi.*
+%endif
+%endif
     # Fix build paths in ELF files so it looks like we built them
     portablenvr="%{name}-portable-%{version}-%{prelease}.%{portablesuffix}.%{_arch}"
     for file in $(find ${installdir} -type f) ; do
-        if file ${file} | grep -q 'ELF'; then
-            %{debugedit} -b %{portablebuilddir}/${portablenvr} -d $(pwd) -n ${file}
+        if ! echo ${file} | grep -q 'libffi' ; then
+            if file ${file} | grep -q 'ELF'; then
+                %{debugedit} -b %{portablebuilddir}/${portablenvr} -d $(pwd) -n ${file}
+            fi
         fi
     done
 
   # Set tapset variables to match this build
 %if %{with_systemtap}
-  for file in ${miscdir}/tapset${suffix}/*.in; do
+   for file in ${miscdir}/tapset${suffix}/*.in; do
     OUTPUT_FILE=`echo $file | sed -e "s:\.stp\.in$:-%{version}-%{release}.%{_arch}.stp:g"`
     sed -e "s:@ABS_SERVER_LIBJVM_SO@:%{_jvmdir}/%{sdkdir -- $suffix}/lib/server/libjvm.so:g" $file > ${OUTPUT_FILE}
 # TODO find out which architectures other than i686 have a client vm
@@ -2400,6 +2427,10 @@ export JAVA_HOME=$(pwd)/%{installoutputdir -- $suffix}
 %else
 export JAVA_HOME=$(pwd)/%{installoutputdir -- $suffix}/images/%{jdkimage}
 %endif
+
+# Basic version check
+$JAVA_HOME/jre/bin/java -version
+$JAVA_HOME/bin/java -version
 
 # Only test on one architecture (the fastest) for Java only tests
 %ifarch %{jdk_test_arch}
@@ -2915,6 +2946,34 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Fri Jan 17 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b06-2
+- Update to 8u442-b06 (GA)
+- Update release notes for 8u442-b06.
+- Switch to GA mode for final release
+- Revise JDK-8141590 backport to install libffi.so* in lib as well as jre/lib
+- Sync the copy of the portable specfile with the latest update
+- Remove libffi.so copying workaround now the portable build installs it in lib
+- Add bundled libffi.so to _privatelibs
+- Remove libffi.so copy if we are building on the same platform as the portable
+- Resolves: RHEL-73551
+- Related: RHEL-74305
+
+* Thu Jan 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b05-0.3.ea
+- Add zero_arches to the portable_build_arches now that the portable build bundles libffi
+- Temporarily workaround libffi.so not being in lib/%%{archinstall} by copying it
+- Exclude libffi.so from the debugedit run
+- Add a simple -version check on both the JDK and JRE bin/java
+- Add libffi.so to the filelist, including expanding the lib/%%{archinstall} contents as with jre/lib
+- Sync the copy of the portable specfile and new patches with the latest update
+- Resolves: RHEL-74305
+
+* Mon Jan 06 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b05-0.2.ea
+- Update to 8u442-b05 (EA).
+- Update release notes for 8u442-b05.
+- Switch to EA mode for pre-release.
+- Sync the copy of the portable specfile with the latest update
+- Resolves: RHEL-73998
+
 * Sat Oct 19 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-3
 - Rebuild RPM for 9.5 0day release
 - Related: RHEL-58794
