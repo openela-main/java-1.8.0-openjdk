@@ -269,7 +269,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u432-b06
+%global openjdk_revision 8u442-b06
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop file
 %global icedteaver      3.15.0
@@ -595,6 +595,9 @@ Patch581: jdk8257794-remove_broken_assert.patch
 Patch12: jdk8186464-rh1433262-zip64_failure.patch
 # JDK-8328999, RH2251025 - Update GIFlib to 5.2.2 (PR#571)
 Patch13: jdk8328999-update_giflib_5.2.2.patch
+# JDK-8141590 - Cannot build Zero with devkit
+Patch14: jdk8141590-bundle_libffi.patch
+Patch15: jdk8141590-bundle_libffi-followup.patch
 
 #############################################
 #
@@ -875,6 +878,8 @@ popd
 pushd %{top_level_dir_name}
 %patch -P502 -p1
 %patch -P13 -p1
+%patch -P14 -p1
+%patch -P15 -p1
 popd
 
 pushd %{top_level_dir_name}
@@ -1004,6 +1009,7 @@ function buildjdk() {
 %endif
 %ifarch %{zero_arches}
     --with-jvm-variants=zero \
+    --enable-libffi-bundling \
 %endif
     --with-cacerts-file=`readlink -f %{_sysconfdir}/pki/java/cacerts`  \
     --with-native-debug-symbols=${debug_symbols} \
@@ -1173,10 +1179,12 @@ function packagejdk() {
         # Strip the files
         for file in $(find ${jdkname} ${jrename} -type f) ; do
             if file ${file} | grep -q 'ELF'; then
-                noextfile=${file/.so/};
-                objcopy --only-keep-debug ${file} ${noextfile}.debuginfo;
-                objcopy --add-gnu-debuglink=${noextfile}.debuginfo ${file};
-                strip -g ${file};
+                if ! echo ${file} | grep -q 'libffi' ; then
+                  noextfile=${file/.so/};
+                  objcopy --only-keep-debug ${file} ${noextfile}.debuginfo;
+                  objcopy --add-gnu-debuglink=${noextfile}.debuginfo ${file};
+                  strip -g ${file};
+                fi
             fi
         done
 
@@ -1539,6 +1547,23 @@ done
 %endif
 
 %changelog
+* Thu Jan 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b06-1
+- Update to 8u442-b06 (GA)
+- Update release notes for 8u442-b06.
+- Switch to GA mode for final release
+- Revise JDK-8141590 backport to install libffi.so* in lib as well as jre/lib
+
+* Thu Jan 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b05-0.2.ea
+- Include backport of JDK-8141590 to allow bundling of libffi on Zero architectures
+- Rebase FIPS patch after application of 8141590
+- Add local patch on top of 8141590 to improve path detection for s390x
+- Don't attempt to strip libffi.so*
+
+* Mon Jan 06 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b05-0.1.ea
+- Update to 8u442-b05 (EA).
+- Update release notes for 8u442-b05.
+- Switch to EA mode for pre-release.
+
 * Fri Oct 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-1
 - Update to shenandoah-jdk8u432-b06 (GA)
 - Update release notes for shenandoah-8u432-b06.
