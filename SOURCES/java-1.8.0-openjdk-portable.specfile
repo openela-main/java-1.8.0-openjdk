@@ -269,7 +269,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u442-b06
+%global openjdk_revision 8u452-b09
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop file
 %global icedteaver      3.15.0
@@ -1547,6 +1547,12 @@ done
 %endif
 
 %changelog
+* Fri Apr 11 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-1
+- Update to 8u452-b09 (GA)
+- Update release notes for 8u452-b09.
+- Remove long option documentation from JDK-8335912/JDK-8337499 as not present in 8u
+- ** This tarball is embargoed until 2025-04-15 @ 1pm PT. **
+
 * Thu Jan 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b06-1
 - Update to 8u442-b06 (GA)
 - Update release notes for 8u442-b06.
