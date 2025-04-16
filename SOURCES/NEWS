@@ -3,6 +3,151 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u452 (2025-04-15):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u452
+
+* CVEs
+  - CVE-2025-21587
+  - CVE-2025-30691
+  - CVE-2025-30698
+* Changes
+  - JDK-8037013: [TESTBUG] Fix test/java/lang/ClassLoader/Assert.sh on AIX
+  - JDK-8048215: [TESTBUG] java/lang/management/ManagementFactory/ThreadMXBeanProxy.java Expected non-null LockInfo
+  - JDK-8068305: [TEST_BUG] Test java/awt/Mixing/HWDisappear.java fails with GTKL&F
+  - JDK-8212096: javax/net/ssl/ServerName/SSLEngineExplorerMatchedSNI.java failed intermittently due to SSLException: Tag mismatch
+  - JDK-8227651: Tests fail with SSLProtocolException: Input record too big
+  - JDK-8240235: jdk.test.lib.util.JarUtils updates jar files incorrectly
+  - JDK-8244966: Add .vscode to .hgignore and .gitignore
+  - JDK-8250825: C2 crashes with assert(field != __null) failed: missing field
+  - JDK-8255466: C2 crashes at ciObject::get_oop() const+0x0
+  - JDK-8261020: Wrong format parameter in create_emergency_chunk_path
+  - JDK-8265019: Update tests for additional TestNG test permissions
+  - JDK-8266881: Enable debug log for SSLEngineExplorerMatchedSNI.java
+  - JDK-8268457: XML Transformer outputs Unicode supplementary character incorrectly to HTML
+  - JDK-8285756: clean up use of bad arguments for `@clean` in langtools tests
+  - JDK-8309841: Jarsigner should print a warning if an entry is removed
+  - JDK-8316193: jdk/jfr/event/oldobject/TestListenerLeak.java java.lang.Exception: Could not find leak
+  - JDK-8326110: [8u] The Marlin tests should be updated after JDK-8241307
+  - JDK-8337494: Clarify JarInputStream behavior
+  - JDK-8337692: Better TLS connection support
+  - JDK-8338430: Improve compiler transformations
+  - JDK-8339560: Unaddressed comments during code review of JDK-8337664
+  - JDK-8339637: (tz) Update Timezone Data to 2024b
+  - JDK-8339644: Improve parsing of Day/Month in tzdata rules
+  - JDK-8339810: Clean up the code in sun.tools.jar.Main to properly close resources and use ZipFile during extract
+  - JDK-8340552: Harden TzdbZoneRulesCompiler against missing zone names
+  - JDK-8340660: [8u] Test com/sun/jdi/PrivateTransportTest.sh fails on MacOS
+  - JDK-8342562: Enhance Deflater operations
+  - JDK-8343007: Enhance Buffered Image handling
+  - JDK-8345504: Bump update version of OpenJDK: 8u452
+  - JDK-8346140: [8u] tools/jar/ExtractFilesTest.java and tools/jar/MultipleManifestTest.java fails with jtreg5.1
+  - JDK-8346587: Distrust TLS server certificates anchored by Camerfirma Root CAs
+  - JDK-8347847: Enhance jar file support
+  - JDK-8347965: (tz) Update Timezone Data to 2025a
+  - JDK-8348211: [8u] sun/management/jmxremote/startstop/JMXStartStopTest.java fails after backport of JDK-8066708
+  - JDK-8349166: Bad indentation in backport of JDK-8250825
+  - JDK-8350816: [8u] Update TzdbZoneRulesCompiler to ignore HST/EST/MST links
+  - JDK-8352097: (tz) zone.tab update missed in 2025a backport
+  - JDK-8353433: XCG currency code not recognized in JDK 8u
+
+Notes on individual issues:
+===========================
+
+security-libs/java.security:
+
+JDK-8309841: Jarsigner should print a warning if an entry is removed
+====================================================================
+In previous OpenJDK releases, the jarsigner tool did not detect the
+case where a file was removed from a signed JAR file but its signature
+was still present. With this release, `jarsigner -verify` checks that
+every signature has a matching file entry and prints a warning if this
+is not the case. The `-verbose` option can also be added to the
+command to see the names of the mismatched entries.
+
+security-libs/javax.net.ssl:
+
+JDK-8346587: Distrust TLS server certificates anchored by Camerfirma Root CAs
+=============================================================================
+In accordance with similar plans recently announced by Google,
+Mozilla, Apple and Microsoft, the JDK will not trust Transport Layer
+Security (TLS) certificates issued after the 15th of April 2025 which
+are anchored by Camerfirma root certificates.
+
+Certificates issued on or before April 15th, 2025 will continue to
+be trusted until they expire.
+
+If a server's certificate chain is anchored by an affected
+certificate, attempts to negotiate a TLS session will fail with an
+Exception that indicates the trust anchor is not trusted. For example,
+
+"TLS server certificate issued after 2025-04-15 and anchored by a
+distrusted legacy Camerfirma root CA: CN=Chambers of Commerce Root -
+2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see
+current address at www.camerfirma.com/address), C=EU"
+
+To check whether a certificate in a JDK keystore is affected by this
+change, you can the `keytool` utility:
+
+keytool -v -list -alias <your_server_alias> -keystore <your_keystore_filename>
+
+If any of the certificates in the chain are affected by this change,
+then you will need to update the certificate or contact the
+organisation responsible for managing the certificate.
+
+These restrictions apply to the following Camerfirma root certificates
+included in the JDK:
+
+Alias name: camerfirmachamberscommerceca [jdk]
+CN=Chambers of Commerce Root
+OU=http://www.chambersign.org
+O=AC Camerfirma SA CIF A82743287
+C=EU
+SHA256: 0C:25:8A:12:A5:67:4A:EF:25:F2:8B:A7:DC:FA:EC:EE:A3:48:E5:41:E6:F5:CC:4E:E6:3B:71:B3:61:60:6A:C3
+
+Alias name: camerfirmachambersca [jdk]
+CN=Chambers of Commerce Root - 2008
+O=AC Camerfirma S.A.
+SERIALNUMBER=A82743287
+L=Madrid (see current address at www.camerfirma.com/address)
+C=EU
+SHA256: 06:3E:4A:FA:C4:91:DF:D3:32:F3:08:9B:85:42:E9:46:17:D8:93:D7:FE:94:4E:10:A7:93:7E:E2:9D:96:93:C0
+
+Alias name: camerfirmachambersignca [jdk]
+CN=Global Chambersign Root - 2008
+O=AC Camerfirma S.A.
+SERIALNUMBER=A82743287
+L=Madrid (see current address at www.camerfirma.com/address)
+C=EU
+SHA256: 13:63:35:43:93:34:A7:69:80:16:A0:D3:24:DE:72:28:4E:07:9D:7B:52:20:BB:8F:BD:74:78:16:EE:BE:BA:CA
+
+Users can, *at their own risk*, remove this restriction by modifying
+the `java.security` configuration file (or override it by using the
+`java.security.properties` system property) so "CAMERFIRMA_TLS" is no
+longer listed in the `jdk.security.caDistrustPolicies` security
+property.
+
+core-libs/java.time:
+
+JDK-8339637: (tz) Update Timezone Data to 2024b
+===============================================
+This OpenJDK release upgrades the in-tree copy of the IANA timezone
+database to 2024b.  This timezone update is primarily concerned with
+improving historical data for Mexico, Monogolia and Portugal. It also
+makes Asia/Choibalsan an alias for Asia/Ulaanbaatar and makes the MET
+timezone the same as CET.
+
+The 2024b update also makes a number of legacy timezone IDs equal to
+geographical names rather than fixed offsets, as follows:
+
+* EST => America/Panama instead of -5:00
+* MST => America/Phoenix instead of -7:00
+* HST => Pacific/Honolulu instead of -10:00
+
+For long term support releases of OpenJDK, this change is overridden
+locally to retain the existing fixed offset mapping.
+
 New in release OpenJDK 8u442 (2025-01-21):
 ===========================================
 Live versions of these release notes can be found at:
@@ -39,15 +184,12 @@ JDK-8335912/JDK-8337499: Add an operation mode to the jar command when extractin
 ===================================================================================================================
 In previous OpenJDK releases, when the jar tool extracted files from
 an archive, it would overwrite any existing files with the same name
-in the target directory. With this release, a new option ('-k' or
-'--keep-old-files') may be specified so that existing files are not
-overwritten.
+in the target directory. With this release, a new option ('-k') may be
+specified so that existing files are not overwritten.
 
-The option may be specified in short or long option form, as in the
-following examples:
+The option may be specified as in the following example:
 
 * jar xkf foo.jar
-* jar --extract --keep-old-files --file foo.jar
 
 By default, the old behaviour remains in place and files will be
 overwritten.

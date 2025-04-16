@@ -299,7 +299,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u442-b06
+%global openjdk_revision 8u452-b09
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -1163,8 +1163,8 @@ Provides: jre%{?1} = %{epoch}:%{javaver}
 Requires: ca-certificates
 # Require javapackages-filesystem for ownership of /usr/lib/jvm/
 Requires: javapackages-filesystem
-# 2024a required as of JDK-8325150
-Requires: tzdata-java >= 2024a
+# 2025a required as of JDK-8347965
+Requires: tzdata-java >= 2025a
 # for support of kernel stream control
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
@@ -1594,8 +1594,8 @@ BuildRequires: java-1.%{majorver}.0-openjdk-portable-misc = %{epoch}:%{version}-
 %ifarch %{zero_arches}
 BuildRequires: libffi-devel
 %endif
-# 2024a required as of JDK-8325150
-BuildRequires: tzdata-java >= 2024a
+# 2025a required as of JDK-8347965
+BuildRequires: tzdata-java >= 2025a
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -2704,6 +2704,16 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Fri Apr 11 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-1
+- Update to 8u452-b09 (GA)
+- Update release notes for 8u452-b09.
+- Remove long option documentation from JDK-8335912/JDK-8337499 as not present in 8u
+- Require tzdata 2025a due to upstream inclusion of JDK-8347965
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2025-04-15 @ 1pm PT. **
+- Resolves: RHEL-86973
+- Resolves: RHEL-86616
+
 * Fri Jan 17 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b06-2
 - Update to 8u442-b06 (GA)
 - Update release notes for 8u442-b06.
