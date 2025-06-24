@@ -354,8 +354,8 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-# rpmrelease numbering must start at 2 to be later than the 9.2 RPM
-%global rpmrelease      2
+# rpmrelease numbering must start at 2 to be later than the 9.0 RPM
+%global rpmrelease      3
 # Settings used by the portable build
 %global portablerelease 1
 %global portablerhel 8
@@ -2946,7 +2946,12 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
-* Fri Apr 11 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-1
+* Sat Jun 14 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-3
+- Bump release number to appease 9.6-z erratum
+- Resolves: RHEL-86976
+- Resolves: RHEL-86618
+
+* Fri Apr 11 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-2
 - Update to 8u452-b09 (GA)
 - Update release notes for 8u452-b09.
 - Remove long option documentation from JDK-8335912/JDK-8337499 as not present in 8u
