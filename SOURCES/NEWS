@@ -3,6 +3,101 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u462 (2025-07-15):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u462
+
+* CVEs
+  - CVE-2025-30749
+  - CVE-2025-30754
+  - CVE-2025-30761
+  - CVE-2025-50106
+* Changes
+  - JDK-8026976: ECParameters, Point does not match field size
+  - JDK-8028998: [TEST_BUG] [macosx] java/awt/dnd/DropTargetEnterExitTest/MissedDragExitTest.java failed
+  - JDK-8046883: com/sun/jdi/ProcessAttachTest.sh gets "java.io.IOException: Invalid process identifier" on windows
+  - JDK-8071996: split_if accesses NULL region of ConstraintCast
+  - JDK-8159694: HiDPI, Unity, java/awt/dnd/DropTargetEnterExitTest/MissedDragExitTest.java
+  - JDK-8186143: keytool -ext option doesn't accept wildcards for DNS subject alternative names
+  - JDK-8186787: clang-4.0 SIGSEGV in Unsafe_PutByte
+  - JDK-8248001: javadoc generates invalid HTML pages whose ftp:// links are broken
+  - JDK-8274597: Some of the dnd tests time out and fail intermittently
+  - JDK-8274606: Fix jaxp/javax/xml/jaxp/unittest/transform/SurrogateTest.java test
+  - JDK-8278472: Invalid value set to CANDIDATEFORM structure
+  - JDK-8293107: GHA: Bump to Ubuntu 22.04
+  - JDK-8296631: NSS tests failing on OL9 linux-aarch64 hosts
+  - JDK-8303770: Remove Baltimore root certificate expiring in May 2025
+  - JDK-8341946: [8u] sun/security/pkcs11/ec/ tests fail on RHEL9
+  - JDK-8345133: Test sun/security/tools/jarsigner/TsacertOptionTest.java failed: Warning found in stdout
+  - JDK-8345625: Better HTTP connections
+  - JDK-8346887: DrawFocusRect() may cause an assertion failure
+  - JDK-8348989: Better Glyph drawing
+  - JDK-8349111: Enhance Swing supports
+  - JDK-8349594: Enhance TLS protocol support
+  - JDK-8350498: Remove two Camerfirma root CA certificates
+  - JDK-8351098: Bump update version of OpenJDK: 8u462
+  - JDK-8351422: Improve scripting supports
+  - JDK-8351439: [8u] test/java/util/TimeZone/tools/share/Makefile use wrong path to tzdb
+  - JDK-8352716: (tz) Update Timezone Data to 2025b
+  - JDK-8356096: ISO 4217 Amendment 179 Update
+  - JDK-8359170: Add 2 TLS and 2 CS Sectigo roots
+  - JDK-8360147: Better Glyph drawing redux
+
+Notes on individual issues:
+===========================
+
+security-libs/java.security:
+
+JDK-8303770: Remove Baltimore root certificate expiring in May 2025
+===================================================================
+The following root certificate from Baltimore has been removed from
+the `cacerts` keystore:
+
+Alias Name: baltimorecybertrustca [jdk]
+Distinguished Name: CN=Baltimore CyberTrust Root, OU=CyberTrust, O=Baltimore, C=IE
+
+JDK-8350498: Remove two Camerfirma root CA certificates
+=======================================================
+The following expired root certificates from Camerfirma have been
+removed from the `cacerts` keystore:
+
+Alias name: camerfirmachamberscommerceca [jdk]
+CN=Chambers of Commerce Root
+OU=http://www.chambersign.org
+O=AC Camerfirma SA CIF A82743287
+C=EU
+SHA256: 0C:25:8A:12:A5:67:4A:EF:25:F2:8B:A7:DC:FA:EC:EE:A3:48:E5:41:E6:F5:CC:4E:E6:3B:71:B3:61:60:6A:C3
+
+Alias name: camerfirmachambersignca [jdk]
+CN=Global Chambersign Root - 2008
+O=AC Camerfirma S.A.
+SERIALNUMBER=A82743287
+L=Madrid (see current address at www.camerfirma.com/address)
+C=EU
+SHA256: 13:63:35:43:93:34:A7:69:80:16:A0:D3:24:DE:72:28:4E:07:9D:7B:52:20:BB:8F:BD:74:78:16:EE:BE:BA:CA
+
+JDK-8359170: Add 2 TLS and 2 CS Sectigo roots
+=============================================
+The following root certificates have been added to the cacerts
+truststore:
+
+Name: Sectigo Limited
+Alias Name: sectigocodesignroote46
+Distinguished Name: CN=Sectigo Public Code Signing Root E46, O=Sectigo Limited, C=GB
+
+Name: Sectigo Limited
+Alias Name: sectigocodesignrootr46
+Distinguished Name: CN=Sectigo Public Code Signing Root R46, O=Sectigo Limited, C=GB
+
+Name: Sectigo Limited
+Alias Name: sectigotlsroote46
+Distinguished Name: Sectigo Public Server Authentication Root E46, O=Sectigo Limited, C=GB
+
+Name: Sectigo Limited
+Alias Name: sectigotlsrootr46
+Distinguished Name: Sectigo Public Server Authentication Root R46, O=Sectigo Limited, C=GB
+
 New in release OpenJDK 8u452 (2025-04-15):
 ===========================================
 Live versions of these release notes can be found at:
