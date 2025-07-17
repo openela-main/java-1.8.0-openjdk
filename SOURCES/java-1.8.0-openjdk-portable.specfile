@@ -269,7 +269,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u452-b09
+%global openjdk_revision 8u462-b08
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop file
 %global icedteaver      3.15.0
@@ -601,13 +601,14 @@ Patch15: jdk8141590-bundle_libffi-followup.patch
 
 #############################################
 #
-# Patches appearing in 8u382
+# Patches appearing in 8u472
 #
 # This section includes patches which are present
 # in the listed OpenJDK 8u release and should be
 # able to be removed once that release is out
 # and used by this RPM.
 #############################################
+Patch901: jdk8339414-fix_8202369_backport.patch
 
 #############################################
 #
@@ -880,6 +881,11 @@ pushd %{top_level_dir_name}
 %patch -P13 -p1
 %patch -P14 -p1
 %patch -P15 -p1
+popd
+
+# Early fixes
+pushd %{top_level_dir_name}
+%patch -P901 -p1
 popd
 
 pushd %{top_level_dir_name}
@@ -1547,6 +1553,13 @@ done
 %endif
 
 %changelog
+* Thu Jul 10 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-1
+- Update to 8u462-b08 (GA)
+- Update release notes for 8u462-b08.
+- Add early backport of JDK-8339414
+- ** This tarball is embargoed until 2025-07-15 @ 1pm PT. **
+- Resolves: OPENJDK-3965
+
 * Fri Apr 11 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-1
 - Update to 8u452-b09 (GA)
 - Update release notes for 8u452-b09.

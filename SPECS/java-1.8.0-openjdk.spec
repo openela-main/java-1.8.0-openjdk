@@ -308,7 +308,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u452-b09
+%global openjdk_revision 8u462-b08
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -1270,8 +1270,8 @@ Provides: jre%{?1} = %{epoch}:%{version}-%{release}
 Requires: ca-certificates
 # Require javapackages-filesystem for ownership of /usr/lib/jvm/ and macros
 Requires: javapackages-filesystem
-# 2025a required as of JDK-8347965
-Requires: tzdata-java >= 2025a
+# 2025b required as of JDK-8352716
+Requires: tzdata-java >= 2025b
 # for support of kernel stream control
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
@@ -1589,13 +1589,14 @@ Patch15: jdk8141590-bundle_libffi-followup.patch
 
 #############################################
 #
-# Patches appearing in 8u382
+# Patches appearing in 8u472
 #
 # This section includes patches which are present
 # in the listed OpenJDK 8u release and should be
 # able to be removed once that release is out
 # and used by this RPM.
 #############################################
+Patch901: jdk8339414-fix_8202369_backport.patch
 
 
 #############################################
@@ -2035,6 +2036,11 @@ pushd %{top_level_dir_name}
 %patch -P1000 -p1
 # cacerts patch; must follow FIPS patch as it also alters java.security
 %patch -P539 -p1
+popd
+
+# Upstreamed fixes
+pushd %{top_level_dir_name}
+%patch -P901 -p1
 popd
 
 # RPM-only fixes
@@ -2946,6 +2952,17 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Thu Jul 10 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-1
+- Update to 8u462-b08 (GA)
+- Update release notes for 8u462-b08.
+- Require tzdata 2025b due to upstream inclusion of JDK-8352716
+- Add early backport of JDK-8339414
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2025-07-15 @ 1pm PT. **
+- Resolves: RHEL-101657
+- Resolves: RHEL-102311
+- Resolves: RHEL-102910
+
 * Sat Jun 14 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-3
 - Bump release number to appease 9.6-z erratum
 - Resolves: RHEL-86976
