@@ -138,8 +138,12 @@
 # Set of architectures for which we have a portable build
 %global portable_build_arches %{aarch64} %{ix86} %{power64} x86_64 %{zero_arches}
 # Architecture on which we run Java only tests
+%if 0%{?centos} == 0
 # Temporarily include zero_arches until we can use a portable Zero build
 %global jdk_test_arch x86_64 %{zero_arches}
+%else
+%global jdk_test_arch x86_64
+%endif
 
 # By default, we build a debug build during main build on JIT architectures
 %if %{with slowdebug}
@@ -308,7 +312,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u462-b08
+%global openjdk_revision 8u472-b08
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -354,11 +358,15 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-# rpmrelease numbering must start at 2 to be later than the 9.0 RPM
-%global rpmrelease      3
+%global rpmrelease      1
 # Settings used by the portable build
 %global portablerelease 1
+# Portable suffix differs between RHEL and CentOS
+%if 0%{?centos} == 0
 %global portablerhel 8
+%else
+%global portablerhel 9
+%endif
 %global portablesuffix el%{portablerhel}
 %global portablebuilddir /builddir/build/BUILD
 
@@ -1379,6 +1387,7 @@ Name:    java-%{javaver}-%{origin}
 Version: %{javaver}.%{updatever}.%{buildver}
 Release: %{?eaprefix}%{rpmrelease}%{?extraver}%{?dist}
 # Equivalent for the portable build
+%global pversion %{version}
 %global prelease %{?eaprefix}%{portablerelease}%{?extraver}
 # java-1.5.0-ibm from jpackage.org set Epoch to 1 for unknown reasons
 # and this change was brought into RHEL-4. java-1.5.0-ibm packages
@@ -1462,11 +1471,11 @@ Source21: NEWS
 Source22: repack_reproducible_policies.sh
 
 # Setup variables to reference correct sources
-%global releasezip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.unstripped.jdk.%{_arch}.tar.xz
-%global docszip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.docs.%{_arch}.tar.xz
-%global misczip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.misc.%{_arch}.tar.xz
-%global slowdebugzip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.slowdebug.jdk.%{_arch}.tar.xz
-%global fastdebugzip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.fastdebug.jdk.%{_arch}.tar.xz
+%global releasezip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.unstripped.jdk.%{_arch}.tar.xz
+%global docszip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.docs.%{_arch}.tar.xz
+%global misczip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.misc.%{_arch}.tar.xz
+%global slowdebugzip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.slowdebug.jdk.%{_arch}.tar.xz
+%global fastdebugzip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.fastdebug.jdk.%{_arch}.tar.xz
 
 ############################################
 #
@@ -1596,7 +1605,6 @@ Patch15: jdk8141590-bundle_libffi-followup.patch
 # able to be removed once that release is out
 # and used by this RPM.
 #############################################
-Patch901: jdk8339414-fix_8202369_backport.patch
 
 
 #############################################
@@ -1666,16 +1674,16 @@ BuildRequires: zip
 BuildRequires: javapackages-filesystem
 %ifarch %{portable_build_arches}
 %if %{include_normal_build}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-unstripped = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-unstripped = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
 %endif
 %if %{include_fastdebug_build}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-fastdebug = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-fastdebug = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
 %endif
 %if %{include_debug_build}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-slowdebug = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-slowdebug = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
 %endif
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-docs = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-misc = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-docs = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-misc = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
 %else
 # Require a boot JDK which doesn't fail due to RH1482244
 BuildRequires: java-%{buildjdkver}-openjdk-devel >= 1.7.0.151-2.6.11.3
@@ -2029,6 +2037,10 @@ pushd %{top_level_dir_name}
 %patch -P15 -p1
 popd
 
+# Early fixes
+pushd %{top_level_dir_name}
+popd
+
 pushd %{top_level_dir_name}
 # Add crypto policy and FIPS support
 %patch -P1001 -p1
@@ -2036,11 +2048,6 @@ pushd %{top_level_dir_name}
 %patch -P1000 -p1
 # cacerts patch; must follow FIPS patch as it also alters java.security
 %patch -P539 -p1
-popd
-
-# Upstreamed fixes
-pushd %{top_level_dir_name}
-%patch -P901 -p1
 popd
 
 # RPM-only fixes
@@ -2349,7 +2356,7 @@ for suffix in %{build_loop} ; do
 %endif
 %endif
     # Fix build paths in ELF files so it looks like we built them
-    portablenvr="%{name}-portable-%{version}-%{prelease}.%{portablesuffix}.%{_arch}"
+    portablenvr="%{name}-portable-%{pversion}-%{prelease}.%{portablesuffix}.%{_arch}"
     for file in $(find ${installdir} -type f) ; do
         if ! echo ${file} | grep -q 'libffi' ; then
             if file ${file} | grep -q 'ELF'; then
@@ -2952,21 +2959,67 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
-* Thu Jul 10 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-1
+* Thu Oct 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.472.b08-1
+- Update to 8u472-b08 (GA).
+- Update release notes for 8u472-b08.
+- Drop local JDK-8339414 fix as this is now included upstream
+- Reset rpmrelease to 1 now there are no other RPM builds on RHEL 9
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2025-10-21 @ 1pm PT. **
+- Resolves: RHEL-118767
+- Resolves: RHEL-119455
+
+* Sun Oct 05 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-5
+- Update get_bundle_versions.sh to match other scripts
+- * get_bundle_versions.sh: Add license
+- * get_bundle_versions.sh: Set compile-command in Emacs
+- * get_bundle_versions.sh: Use different error codes for different failures
+- * get_bundle_versions.sh: Remove unneeded '.' in JPEG version
+- * get_bundle_versions.sh: shellcheck: Double-quote variable references (SC2086)
+- * get_bundle_versions.sh: shellcheck: Drop use of cat and pass file to awk directly (SC2002)
+- Add OpenJDK 8u support to get_bundle_versions.sh
+- Print bundle updates and backouts at end of openjdk_news.sh output
+- Refer user to get_bundle_versions.sh when bundle updates are found by openjdk_news.sh
+- Add timezone data update check to openjdk_news.sh
+- Add duplicate check to openjdk_news.sh
+- Exit if no fixes are obtained rather than try to run filters in openjdk_news.sh
+- Sync the copy of the portable specfile with the latest update
+- Resolves: RHEL-119329
+
+* Sun Oct 05 2025 Antonio Vieiro <avieirov@redhat.com> - 1:1.8.0.462.b08-5
+- Add script to obtain bundled library versions from OpenJDK sources
+- Related: RHEL-119329
+
+* Sun Oct 05 2025 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.462.b08-5
+- Warn about bundled provide version bumps and backouts in openjdk_news.sh
+- Related: RHEL-119329
+
+* Sun Oct 05 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-5
+- Bump rpmrelease for move to portables only on RHEL 8
+- Resolves: RHEL-118775
+
+* Thu Jul 10 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-4
+- Bump rpmrelease for CentOS build
+- Remove obsolete hack to hardcode newer portable version on RHEL
+- Related: RHEL-101648
+- Related: RHEL-102312
+- Related: RHEL-97496
+
+* Thu Jul 10 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-3
 - Update to 8u462-b08 (GA)
 - Update release notes for 8u462-b08.
 - Require tzdata 2025b due to upstream inclusion of JDK-8352716
 - Add early backport of JDK-8339414
 - Sync the copy of the portable specfile with the latest update
 - ** This tarball is embargoed until 2025-07-15 @ 1pm PT. **
-- Resolves: RHEL-101657
-- Resolves: RHEL-102311
-- Resolves: RHEL-102910
+- Resolves: RHEL-101648
+- Resolves: RHEL-102312
+- Resolves: RHEL-97496
 
 * Sat Jun 14 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-3
 - Bump release number to appease 9.6-z erratum
-- Resolves: RHEL-86976
-- Resolves: RHEL-86618
+- Related: RHEL-86967
+- Related: RHEL-86620
 
 * Fri Apr 11 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.452.b09-2
 - Update to 8u452-b09 (GA)
@@ -2975,8 +3028,14 @@ cjc.mainProgram(args)
 - Require tzdata 2025a due to upstream inclusion of JDK-8347965
 - Sync the copy of the portable specfile with the latest update
 - ** This tarball is embargoed until 2025-04-15 @ 1pm PT. **
-- Resolves: RHEL-86976
-- Resolves: RHEL-86618
+- Resolves: RHEL-86967
+- Resolves: RHEL-86620
+
+* Fri Jan 17 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b06-3
+- Bump rpmrelease for CentOS build
+- Related: RHEL-73554
+- Related: RHEL-74302
+- Related: RHEL-73990
 
 * Fri Jan 17 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b06-2
 - Update to 8u442-b06 (GA)
@@ -2987,8 +3046,8 @@ cjc.mainProgram(args)
 - Remove libffi.so copying workaround now the portable build installs it in lib
 - Add bundled libffi.so to _privatelibs
 - Remove libffi.so copy if we are building on the same platform as the portable
-- Resolves: RHEL-73551
-- Related: RHEL-74305
+- Resolves: RHEL-73554
+- Related: RHEL-74302
 
 * Thu Jan 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b05-0.3.ea
 - Add zero_arches to the portable_build_arches now that the portable build bundles libffi
@@ -2997,20 +3056,23 @@ cjc.mainProgram(args)
 - Add a simple -version check on both the JDK and JRE bin/java
 - Add libffi.so to the filelist, including expanding the lib/%%{archinstall} contents as with jre/lib
 - Sync the copy of the portable specfile and new patches with the latest update
-- Resolves: RHEL-74305
+- Resolves: RHEL-74302
 
 * Mon Jan 06 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.442.b05-0.2.ea
 - Update to 8u442-b05 (EA).
 - Update release notes for 8u442-b05.
 - Switch to EA mode for pre-release.
 - Sync the copy of the portable specfile with the latest update
-- Resolves: RHEL-73998
+- Resolves: RHEL-73990
+
+* Sat Oct 19 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-4
+- Bump rpmrelease for CentOS build
+- Related: RHEL-58786
 
 * Sat Oct 19 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-3
 - Rebuild RPM for 9.5 0day release
-- Related: RHEL-58794
-- Related: RHEL-62280
-- Related: RHEL-61287
+- Related: RHEL-58786
+- Related: RHEL-17187
 
 * Fri Oct 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-2
 - Update to shenandoah-jdk8u432-b06 (GA)
@@ -3022,12 +3084,15 @@ cjc.mainProgram(args)
 - Bump version of bundled giflib to 5.2.2 following JDK-8328999
 - Add build scripts to repository to ease remembering all CentOS & RHEL targets and options
 - Sync the copy of the portable specfile with the latest update
-- Resolves: RHEL-58794
-- Resolves: RHEL-62280
-- Resolves: RHEL-61287
+- Resolves: RHEL-58786
+- Resolves: RHEL-17187
 - ** This tarball is embargoed until 2024-10-15 @ 1pm PT. **
 
-* Wed Jul 10 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b05-1
+* Wed Jul 10 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b05-3
+- Bump rpmrelease for CentOS build and update RHEL version hack following July 2025 update
+- Related: RHEL-47013
+
+* Wed Jul 10 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b05-2
 - Update to shenandoah-jdk8u422-b05 (GA)
 - Update release notes for shenandoah-8u422-b05.
 - Rebase PR2462 patch following patched hunk being removed by JDK-8322106
@@ -3037,10 +3102,10 @@ cjc.mainProgram(args)
 - Add missing build dependencies on zlib-devel and tar
 - Update LCMS version to match JDK-8245400
 - ** This tarball is embargoed until 2024-07-16 @ 1pm PT. **
-- Resolves: RHEL-46860
-- Resolves: RHEL-47011
+- Resolves: RHEL-46858
+- Resolves: RHEL-47013
 
-* Tue Jul 09 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b01-0.1.ea
+* Tue Jul 09 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b01-0.2.ea
 - Update to shenandoah-jdk8u422-b01 (EA)
 - Update release notes for shenandoah-8u422-b01.
 - Switch to EA mode.
@@ -3049,25 +3114,28 @@ cjc.mainProgram(args)
 - Document policy repacking script and rename to correct spelling and style
 - Limit Java only tests to one architecture using jdk_test_arch
 - Temporarily include Zero-based architectures in jdk_test_arch until they are portable
-- Related: RHEL-46860
-- Resolves: RHEL-47069
-- Resolves: RHEL-47090
+- Related: RHEL-46858
+- Resolves: RHEL-47057
+- Resolves: RHEL-47082
+
+* Mon Apr 08 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b08-3
+- Bump rpmrelease for CentOS build
+- Related: RHEL-32412
 
 * Mon Apr 08 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b08-2
 - Update to shenandoah-jdk8u412-b08 (GA)
-- Update release notes for shenandoah-8u412-b08.
-- Complete release note for Certainly roots
+- Update release notes for shenandoah-jdk8u412-b08.
 - Switch to GA mode.
 - Sync the copy of the portable specfile with the latest update
 - ** This tarball is embargoed until 2024-04-16 @ 1pm PT. **
-- Resolves: RHEL-32409
+- Resolves: RHEL-32412
 
 * Fri Apr 05 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b07-0.2.ea
 - Update to shenandoah-jdk8u412-b07 (EA)
 - Require tzdata 2024a due to upstream inclusion of JDK-8322725
 - Only require tzdata 2023d for now as 2024a is unavailable in buildroot
 - Sync the copy of the portable specfile with the latest update
-- Related: RHEL-30934
+- Resolves: RHEL-30937
 
 * Fri Mar 22 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b01-0.2.ea
 - Turn off xz multi-threading on i686 as it fails with an out of memory error
@@ -3100,7 +3168,7 @@ cjc.mainProgram(args)
 - generate_source_tarball.sh: Sync indentation with java-21-openjdk version
 - generate_source_tarball.sh: Support using a subdirectory via TO_COMPRESS
 - Sync patch set with portable build
-- Related: RHEL-30934
+- Related: RHEL-30937
 
 * Fri Mar 22 2024 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.412.b01-0.2.ea
 - Invoke xz in multi-threaded mode
@@ -3128,26 +3196,32 @@ cjc.mainProgram(args)
 - generate_source_tarball.sh: Use long-style argument to grep
 - generate_source_tarball.sh: Add license
 - generate_source_tarball.sh: Add indentation instructions for Emacs
-- Related: RHEL-30934
+- Related: RHEL-30937
 
 * Thu Mar 21 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b01-0.2.ea
 - Update to shenandoah-jdk8u412-b01 (EA)
 - Switch to EA mode.
-- Related: RHEL-30934
+- Related: RHEL-30937
 
-* Thu Jan 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.402.b06-0.2.ea
+* Thu Jan 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.402.b06-2
 - Update to shenandoah-jdk8u402-b06 (GA)
 - Update release notes for shenandoah-8u402-b06.
 - Sync NEWS with vanilla branch version.
 - Sync the copy of the portable specfile with the latest update
 - Drop local copy of JDK-8312489 which is now included upstream
 - ** This tarball is embargoed until 2024-01-16 @ 1pm PT. **
-- Resolves: RHEL-17918
-- Resolves: RHEL-20987
+- Resolves: RHEL-17916
+- Resolves: RHEL-20989
+
+* Mon Oct 16 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.392.b08-4
+- Vary portablesuffix depending on whether we are on RHEL ('el8') or CentOS ('el9')
+- Temporarily use a different portable version and release on RHEL while out of sync with CentOS
+- Add zero_arches to the portable_build_arches on CentOS where there is no libffi issue
+- Related: RHEL-12210
 
 * Mon Oct 16 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.392.b08-3
 - Revert jcmd move as jcmd will not operate without tools.jar
-- Related: RHEL-13605
+- Related: RHEL-13585
 
 * Tue Oct 10 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.392.b08-2
 - Update to shenandoah-jdk8u392-b08 (GA)
@@ -3162,13 +3236,13 @@ cjc.mainProgram(args)
 - Add missing JFR, alt-java, jre-* and java-* alternative ghosts
 - Move jcmd to the headless package
 - ** This tarball is embargoed until 2023-10-17 @ 1pm PT. **
-- Resolves: RHEL-12208
-- Resolves: RHEL-13587
-- Resolves: RHEL-13590
-- Resolves: RHEL-13593
-- Resolves: RHEL-13583
-- Resolves: RHEL-13605
-- Resolves: RHEL-13615
+- Resolves: RHEL-12210
+- Resolves: RHEL-13579
+- Resolves: RHEL-13580
+- Resolves: RHEL-13581
+- Resolves: RHEL-11315
+- Resolves: RHEL-13585
+- Resolves: RHEL-2381
 
 * Fri Sep 29 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.392.b01-1
 - Update to shenandoah-jdk8u392-b01 (GA)

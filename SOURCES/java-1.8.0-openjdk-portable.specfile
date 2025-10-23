@@ -269,7 +269,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u462-b08
+%global openjdk_revision 8u472-b08
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop file
 %global icedteaver      3.15.0
@@ -608,7 +608,6 @@ Patch15: jdk8141590-bundle_libffi-followup.patch
 # able to be removed once that release is out
 # and used by this RPM.
 #############################################
-Patch901: jdk8339414-fix_8202369_backport.patch
 
 #############################################
 #
@@ -885,7 +884,6 @@ popd
 
 # Early fixes
 pushd %{top_level_dir_name}
-%patch -P901 -p1
 popd
 
 pushd %{top_level_dir_name}
@@ -1553,6 +1551,37 @@ done
 %endif
 
 %changelog
+* Thu Oct 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.472.b08-1
+- Update to 8u472-b08 (GA).
+- Update release notes for 8u472-b08.
+- Drop local JDK-8339414 fix as this is now included upstream
+- ** This tarball is embargoed until 2025-10-21 @ 1pm PT. **
+- Resolves: OPENJDK-4125
+
+* Sat Oct 04 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-2
+- Update get_bundle_versions.sh to match other scripts
+- * get_bundle_versions.sh: Add license
+- * get_bundle_versions.sh: Set compile-command in Emacs
+- * get_bundle_versions.sh: Use different error codes for different failures
+- * get_bundle_versions.sh: Remove unneeded '.' in JPEG version
+- * get_bundle_versions.sh: shellcheck: Double-quote variable references (SC2086)
+- * get_bundle_versions.sh: shellcheck: Drop use of cat and pass file to awk directly (SC2002)
+- Add OpenJDK 8u support to get_bundle_versions.sh
+- Print bundle updates and backouts at end of openjdk_news.sh output
+- Refer user to get_bundle_versions.sh when bundle updates are found by openjdk_news.sh
+- Add timezone data update check to openjdk_news.sh
+- Add duplicate check to openjdk_news.sh
+- Exit if no fixes are obtained rather than try to run filters in openjdk_news.sh
+- Resolves: OPENJDK-3952
+
+* Fri Oct 03 2025 Antonio Vieiro <avieirov@redhat.com> - 1:1.8.0.462.b08-2
+- Add script to obtain bundled library versions from OpenJDK sources
+- Related: OPENJDK-3952
+
+* Mon Sep 29 2025 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.462.b08-2
+- Warn about bundled provide version bumps and backouts in openjdk_news.sh
+- Related: OPENJDK-3952
+
 * Thu Jul 10 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.462.b08-1
 - Update to 8u462-b08 (GA)
 - Update release notes for 8u462-b08.
