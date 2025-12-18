@@ -358,7 +358,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      1
+%global rpmrelease      2
 # Settings used by the portable build
 %global portablerelease 1
 # Portable suffix differs between RHEL and CentOS
@@ -2959,6 +2959,13 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Sat Oct 18 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.472.b08-2
+- Bump rpmrelease for CentOS build
+- Add scripts to handle tagging of portable-based RPMs
+- Related: RHEL-118767
+- Related: RHEL-119455
+- Related: RHEL-118775
+
 * Thu Oct 16 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.472.b08-1
 - Update to 8u472-b08 (GA).
 - Update release notes for 8u472-b08.
