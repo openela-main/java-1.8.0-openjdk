@@ -6,32 +6,6 @@ CommitDate: Thu Jan 16 22:50:24 2025 +0000
 
     Search /usr/lib64 on architectures other than x86_64
 
-diff --git a/common/autoconf/generated-configure.sh b/common/autoconf/generated-configure.sh
-index 587b4c2657..5aeebe49a3 100644
---- a/common/autoconf/generated-configure.sh
-+++ b/common/autoconf/generated-configure.sh
-@@ -4493,7 +4493,7 @@ VS_TOOLSET_SUPPORTED_2022=true
- #CUSTOM_AUTOCONF_INCLUDE
- 
- # Do not change or remove the following line, it is needed for consistency checks:
--DATE_WHEN_GENERATED=1737049912
-+DATE_WHEN_GENERATED=1737067804
- 
- ###############################################################################
- #
-@@ -50590,9 +50590,11 @@ $as_echo_n "checking for libffi lib file location... " >&6; }
-             as_fn_error $? "Could not locate libffi.so.? for bundling" "$LINENO" 5
-           fi
-         else
--          # Fallback on the default /usr/lib dir
-+          # Fallback on the default /usr/lib and /usr/lib64 dirs
-           if test -e ${SYSROOT}/usr/lib/libffi.so.? ; then
-             LIBFFI_LIB_FILE="${SYSROOT}/usr/lib/libffi.so.?"
-+          elif test -e ${SYSROOT}/usr/lib64/libffi.so.? ; then
-+            LIBFFI_LIB_FILE="${SYSROOT}/usr/lib64/libffi.so.?"
-           else
-             as_fn_error $? "Could not locate libffi.so.? for bundling" "$LINENO" 5
-           fi
 diff --git a/common/autoconf/libraries.m4 b/common/autoconf/libraries.m4
 index 4ed8b4fdd6..6ab6dbc075 100644
 --- a/common/autoconf/libraries.m4

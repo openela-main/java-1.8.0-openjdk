@@ -3,6 +3,92 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u482 (2026-01-20):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u482
+
+* Changes
+  - JDK-8154043: Fields not reachable anymore by tab-key, because of new tabbing behaviour of radio button groups.
+  - JDK-8182577: Exception when Tab key moves focus to a JCheckbox with a custom ButtonModel
+  - JDK-8193017: Import freetype sources into OpenJDK source tree
+  - JDK-8211804: Constant AO_UNUSED_MBZ uses left shift of negative value
+  - JDK-8212155: Race condition when posting dynamic_code_generated event leads to JVM crash
+  - JDK-8212678: Windows IME related patch
+  - JDK-8219006: AArch64: Register corruption in slow subtype check
+  - JDK-8222362: Upgrade to Freetype 2.10.0
+  - JDK-8227324: Upgrade to freetype 2.10.1
+  - JDK-8247867: Upgrade to freetype 2.10.2
+  - JDK-8258805: Japanese characters not entered by mouse click on Windows 10
+  - JDK-8261170: Upgrade to FreeType 2.10.4
+  - JDK-8265429: Improve GCM encryption
+  - JDK-8269668: [aarch64] java.library.path not including /usr/lib64
+  - JDK-8285686: Update FreeType to 2.12.0
+  - JDK-8290334: Update FreeType to 2.12.1
+  - JDK-8293672: Update freetype md file
+  - JDK-8297088: Update LCMS to 2.14
+  - JDK-8298974: Add ftcolor.c to imported freetype sources
+  - JDK-8305072: Win32ShellFolder2.compareTo is inconsistent
+  - JDK-8306881: Update FreeType to 2.13.0
+  - JDK-8316028: Update FreeType to 2.13.2
+  - JDK-8316030: Update Libpng to 1.6.40
+  - JDK-8317970: Bump target macosx-x64 version to 11.00.00
+  - JDK-8329004: Update Libpng to 1.6.43
+  - JDK-8339280: jarsigner -verify performs cross-checking between CEN and LOC
+  - JDK-8341496: Improve JMX connections
+  - JDK-8345358: Some DLL Files are missing Windows Properties
+  - JDK-8348596: Update FreeType to 2.13.3
+  - JDK-8348598: Update Libpng to 1.6.47
+  - JDK-8353299: VerifyJarEntryName.java test fails
+  - JDK-8354941: Build failure with glibc 2.42 due to uabs() name collision
+  - JDK-8359501: Enhance Handling of URIs
+  - JDK-8362208: [8u] Buffer overflow in g1GCPhaseTimes.cpp::LineBuffer::_buffer
+  - JDK-8362308: Enhance Bitmap operations
+  - JDK-8362632: Improve HttpServer Request handling
+  - JDK-8364214: Enhance polygon data support
+  - JDK-8364597: Replace THL A29 Limited with Tencent
+  - JDK-8364660: ClassVerifier::ends_in_athrow() should be removed
+  - JDK-8365058: Enhance CopyOnWriteArraySet
+  - JDK-8365271: Improve Swing supports
+  - JDK-8366574: Bump update version of OpenJDK: 8u482
+  - JDK-8367115: [8u] Problem list CAInterop.java#actalisauthenticationrootca test
+  - JDK-8367257: [8u] Problem list CAInterop.java#entrustrootcag4 test
+  - JDK-8367782: VerifyJarEntryName.java: Fix modifyJarEntryName to operate on bytes and re-introduce verifySignatureEntryName
+  - JDK-8368032: Enhance Certificate Checking
+  - JDK-8371334: [8u] GHA: installation of VS2010 hangs
+  - JDK-8371352: [8u] Fix VS2010 build issue in check_code.c
+  - JDK-8371387: [8u] hotspot needs to recognise latest VS2022
+  - JDK-8372534: Update Libpng to 1.6.51
+
+Notes on individual issues:
+===========================
+
+core-svc/javax.management:
+
+JDK-8341496: Improve JMX connections
+====================================
+With this release of OpenJDK, SSL connections created by
+`javax.rmi.ssl.SslRMIClientSocketFactory` now enable HTTPS-based
+endpoint identification by default.  This can be disabled by setting
+the new system property
+`jdk.rmi.ssl.client.enableEndpointIdentification` to false.
+
+security-libs/java.security:
+
+JDK-8368032: Enhance Certificate Checking
+=========================================
+OpenJDK supports the authorityInfoAccess extension in X.509
+certificates when the `com.sun.security.enableAIAcaIssuers` system
+property is set to `true`.  With this release of OpenJDK, a security
+and system property `com.sun.security.allowedAIALocations` is
+introduced which acts as a filter on the URIs specified in the
+extension.  By default, the property is empty, which will cause all
+URIs to be denied when the extension is enabled.  A value of `any` may
+be used to allow all URIs or a whitespace-separated list of filters
+may be used for more fine-grained control.  The syntax of the filters
+is specified in the `java.security` file.  A non-empty value for the
+system property takes precedence over the security property.
+
 New in release OpenJDK 8u472 (2025-10-21):
 ===========================================
 Live versions of these release notes can be found at:
