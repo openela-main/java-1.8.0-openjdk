@@ -45,10 +45,12 @@
 %global system_libs 1
 %global link_type system
 %global jpeg_lib |libjavajpeg[.]so.*
+%global freetype_lib %{nil}
 %else
 %global system_libs 0
 %global link_type bundled
 %global jpeg_lib |libjpeg[.]so.*
+%global freetype_lib |libfreetype[.]so.*
 %endif
 
 # The -g flag says to use strip -g instead of full strip on DSOs or EXEs.
@@ -312,7 +314,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u472-b08
+%global openjdk_revision 8u482-b08
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -358,7 +360,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      2
+%global rpmrelease      1
 # Settings used by the portable build
 %global portablerelease 1
 # Portable suffix differs between RHEL and CentOS
@@ -413,7 +415,7 @@
 # fix for https://bugzilla.redhat.com/show_bug.cgi?id=1111349
 #         https://bugzilla.redhat.com/show_bug.cgi?id=1590796#c14
 #         https://bugzilla.redhat.com/show_bug.cgi?id=1655938
-%global _privatelibs libattach[.]so.*|libawt_headless[.]so.*|libawt[.]so.*|libawt_xawt[.]so.*|libdt_socket[.]so.*|libffi[.]so.*|libfontmanager[.]so.*|libhprof[.]so.*|libinstrument[.]so.*|libj2gss[.]so.*|libj2pcsc[.]so.*|libj2pkcs11[.]so.*|libjaas_unix[.]so.*|libjava_crw_demo[.]so.*|libjdwp[.]so.*|libjli[.]so.*|libjsdt[.]so.*|libjsoundalsa[.]so.*|libjsound[.]so.*|liblcms[.]so.*|libmanagement[.]so.*|libmlib_image[.]so.*|libnet[.]so.*|libnio[.]so.*|libnpt[.]so.*|libsaproc[.]so.*|libsctp[.]so.*|libsplashscreen[.]so.*|libsunec[.]so.*|libsystemconf[.]so.*|libunpack[.]so.*|libzip[.]so.*|lib[.]so\\(SUNWprivate_.*%{jpeg_lib}
+%global _privatelibs libattach[.]so.*|libawt_headless[.]so.*|libawt[.]so.*|libawt_xawt[.]so.*|libdt_socket[.]so.*|libffi[.]so.*|libfontmanager[.]so.*%{freetype_lib}|libhprof[.]so.*|libinstrument[.]so.*|libj2gss[.]so.*|libj2pcsc[.]so.*|libj2pkcs11[.]so.*|libjaas_unix[.]so.*|libjava_crw_demo[.]so.*|libjdwp[.]so.*|libjli[.]so.*|libjsdt[.]so.*|libjsoundalsa[.]so.*|libjsound[.]so.*|liblcms[.]so.*|libmanagement[.]so.*|libmlib_image[.]so.*|libnet[.]so.*|libnio[.]so.*|libnpt[.]so.*|libsaproc[.]so.*|libsctp[.]so.*|libsplashscreen[.]so.*|libsunec[.]so.*|libsystemconf[.]so.*|libunpack[.]so.*|libzip[.]so.*|lib[.]so\\(SUNWprivate_.*%{jpeg_lib}
 %global _publiclibs libjawt[.]so.*|libjava[.]so.*|libjvm[.]so.*|libverify[.]so.*|libjsig[.]so.*
 %if %is_system_jdk
 %global __provides_exclude ^(%{_privatelibs})$
@@ -937,6 +939,7 @@ exit 0
 %endif
 %endif
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libfontmanager.so
+%{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libfreetype.so
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libhprof.so
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libinstrument.so
 %{_jvmdir}/%{jredir -- %{?1}}/lib/%{archinstall}/libj2gss.so
@@ -1650,7 +1653,8 @@ BuildRequires: desktop-file-utils
 # elfutils only are OK for build without AOT
 BuildRequires: elfutils-devel
 BuildRequires: fontconfig-devel
-BuildRequires: freetype-devel
+# Earlier versions have a bug in tree vectorization on PPC
+BuildRequires: gcc >= 4.8.3-8
 BuildRequires: gcc-c++
 BuildRequires: gdb
 BuildRequires: libxslt
@@ -1703,20 +1707,23 @@ BuildRequires: systemtap-sdt-devel
 %endif
 
 %if %{system_libs}
+BuildRequires: freetype-devel
 BuildRequires: giflib-devel
 BuildRequires: lcms2-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: zlib-devel
 %else
+# Version in jdk/src/share/native/sun/awt/libfreetype/include/freetype/freetype.h
+Provides: bundled(freetype) = 2.13.3
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
 Provides: bundled(giflib) = 5.2.2
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
-Provides: bundled(lcms2) = 2.11.0
+Provides: bundled(lcms2) = 2.14.0
 # Version in jdk/src/share/native/sun/awt/image/jpeg/jpeglib.h
 Provides: bundled(libjpeg) = 6b
 # Version in jdk/src/share/native/sun/awt/libpng/png.h
-Provides: bundled(libpng) = 1.6.39
+Provides: bundled(libpng) = 1.6.51
 # Version in jdk/src/share/native/java/util/zip/zlib/zlib.h
 Provides: bundled(zlib) = 1.3.1
 %ifnarch %{portable_build_arches}
@@ -2120,6 +2127,10 @@ sed -e "s:@NSS_LIBDIR@:%{NSS_LIBDIR}:g" %{SOURCE17} > nss.fips.cfg
 
 # Setup security policy
 sed -i -e "s:^security.systemCACerts=.*:security.systemCACerts=%{cacerts_file}:" %{security_file}
+
+(cd %{top_level_dir_name}/common/autoconf
+ bash ./autogen.sh
+)
 
 %build
 
@@ -2959,6 +2970,25 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Mon Jan 19 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.482.b08-1
+- Update to 8u482-b08 (GA).
+- Update release notes for 8u482-b08.
+- Remove generated-configure.sh changes from JDK-8141590 & FIPS patch as we already autogenerate this
+- Turn on system FreeType as on later JDK versions and add to _privatelibs
+- Set bundled FreeType version to 2.13.2 following JDK-8316028
+- Bump LCMS 2 version to 2.14.0 following JDK-8297088
+- Bump libpng version to 1.6.51 following JDK-8372534
+- Update FIPS patch to include nss.fips.cfg that grants CKA_ENCRYPT
+- Handle 'upgrade' as an alternative to 'update' in openjdk_news.sh
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2026-01-20 @ 1pm PT. **
+- Resolves: RHEL-142687
+- Resolves: RHEL-139534
+- Resolves: RHEL-131588
+- Resolves: RHEL-131600
+- Resolves: RHEL-142875
+- Resolves: RHEL-142697
+
 * Sat Oct 18 2025 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.472.b08-2
 - Bump rpmrelease for CentOS build
 - Add scripts to handle tagging of portable-based RPMs
