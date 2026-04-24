@@ -314,7 +314,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u482-b08
+%global openjdk_revision 8u492-b09
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -360,7 +360,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      1
+%global rpmrelease      2
 # Settings used by the portable build
 %global portablerelease 1
 # Portable suffix differs between RHEL and CentOS
@@ -1281,8 +1281,8 @@ Provides: jre%{?1} = %{epoch}:%{version}-%{release}
 Requires: ca-certificates
 # Require javapackages-filesystem for ownership of /usr/lib/jvm/ and macros
 Requires: javapackages-filesystem
-# 2025b required as of JDK-8352716
-Requires: tzdata-java >= 2025b
+# 2026a required as of JDK-8379035
+Requires: tzdata-java >= 2026a
 # for support of kernel stream control
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
@@ -1593,8 +1593,6 @@ Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 Patch581: jdk8257794-remove_broken_assert.patch
 # JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
 Patch12: jdk8186464-rh1433262-zip64_failure.patch
-# JDK-8328999, RH2251025 - Update GIFlib to 5.2.2 (PR#571)
-Patch13: jdk8328999-update_giflib_5.2.2.patch
 # JDK-8141590 - Cannot build Zero with devkit
 Patch14: jdk8141590-bundle_libffi.patch
 Patch15: jdk8141590-bundle_libffi-followup.patch
@@ -1697,8 +1695,8 @@ BuildRequires: java-%{buildjdkver}-openjdk-devel >= 1.7.0.151-2.6.11.3
 BuildRequires: libffi
 BuildRequires: libffi-devel
 %endif
-# 2025a required as of JDK-8347965
-BuildRequires: tzdata-java >= 2025a
+# 2026a required as of JDK-8379035
+BuildRequires: tzdata-java >= 2026a
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -1715,15 +1713,15 @@ BuildRequires: libpng-devel
 BuildRequires: zlib-devel
 %else
 # Version in jdk/src/share/native/sun/awt/libfreetype/include/freetype/freetype.h
-Provides: bundled(freetype) = 2.13.3
+Provides: bundled(freetype) = 2.14.2
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
-Provides: bundled(giflib) = 5.2.2
+Provides: bundled(giflib) = 6.1.2
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
-Provides: bundled(lcms2) = 2.14.0
+Provides: bundled(lcms2) = 2.15.0
 # Version in jdk/src/share/native/sun/awt/image/jpeg/jpeglib.h
 Provides: bundled(libjpeg) = 6b
 # Version in jdk/src/share/native/sun/awt/libpng/png.h
-Provides: bundled(libpng) = 1.6.51
+Provides: bundled(libpng) = 1.6.57
 # Version in jdk/src/share/native/java/util/zip/zlib/zlib.h
 Provides: bundled(zlib) = 1.3.1
 %ifnarch %{portable_build_arches}
@@ -2036,10 +2034,9 @@ popd
 %patch -P574
 %patch -P581
 %patch -P541
-%patch -P12
 pushd %{top_level_dir_name}
+%patch -P12 -p1
 %patch -P502 -p1
-%patch -P13 -p1
 %patch -P14 -p1
 %patch -P15 -p1
 popd
@@ -2970,6 +2967,48 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Mon Apr 20 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.492.b09-2
+- Bump release for PQC build
+- Related: RHEL-169446
+
+* Fri Apr 17 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.492.b09-1
+- Update to 8u492-b09 (GA)
+- Update release notes for 8u492-b09.
+- Add missing CVEs for 8u482.
+- Regenerate JDK-8199936/PR3533 patch following JDK-8374917
+- Regenerate JDK-8186464/RH1433262 patch following JDK-8370986
+- Drop local giflib 5.2.2 patch now JDK-8328999 is included upstream
+- Bump freetype version to 2.14.2 following JDK-8373290 & JDK-8379158
+- Bump giflib version to 6.1.2 following JDK-8379256 & JDK-8380078
+- Bump LCMS 2 version to 2.15.0 following JDK-8303482
+- Bump libpng version to 1.6.57 following JDK-8375063, JDK-8377526, JDK-8380959 & JDK-8382047
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2026-04-21 @ 1pm PT. **
+- Resolves: RHEL-169446
+- Resolves: RHEL-133291
+- Resolves: RHEL-147348
+- Resolves: RHEL-148407
+- Resolves: RHEL-148981
+- Resolves: RHEL-161303
+- Resolves: RHEL-161452
+- Resolves: RHEL-157139
+- Resolves: RHEL-157156
+
+* Fri Feb 20 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.482.b08-3
+- Update tagging scripts to include signature checks and correctly handle gating
+- Add gating scripts to simplify obtaining results and waiving issues
+- Resolves: RHEL-147634
+- Resolves: RHEL-151197
+
+* Wed Jan 28 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.482.b08-2
+- Bump rpmrelease for CentOS build
+- Related: RHEL-142687
+- Related: RHEL-139534
+- Related: RHEL-131588
+- Related: RHEL-131600
+- Related: RHEL-142875
+- Related: RHEL-142697
+
 * Mon Jan 19 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.482.b08-1
 - Update to 8u482-b08 (GA).
 - Update release notes for 8u482-b08.
