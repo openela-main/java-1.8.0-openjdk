@@ -1,0 +1,28 @@
+diff --git a/hotspot/src/share/vm/code/compiledIC.cpp b/hotspot/src/share/vm/code/compiledIC.cpp
+index 63821c0613..b0e3d057ca 100644
+--- a/hotspot/src/share/vm/code/compiledIC.cpp
++++ b/hotspot/src/share/vm/code/compiledIC.cpp
+@@ -403,7 +403,8 @@ void CompiledIC::set_to_monomorphic(CompiledICInfo& info) {
+       assert(info.cached_metadata() != NULL && info.cached_metadata()->is_method(), "sanity check");
+       CompiledStaticCall* csc = compiledStaticCall_at(instruction_address());
+       methodHandle method (thread, (Method*)info.cached_metadata());
+-      csc->set_to_interpreted(method, info.entry());
++      // Compiler sees 'this' as null on Zero but it should never actually get called
++      NOT_ZERO(csc->set_to_interpreted(method, info.entry()));
+       if (TraceICs) {
+          ResourceMark rm(thread);
+          tty->print_cr ("IC@" INTPTR_FORMAT ": monomorphic to interpreter: %s",
+diff --git a/hotspot/src/share/vm/runtime/sharedRuntime.cpp b/hotspot/src/share/vm/runtime/sharedRuntime.cpp
+index a136da9054..39fb84628b 100644
+--- a/hotspot/src/share/vm/runtime/sharedRuntime.cpp
++++ b/hotspot/src/share/vm/runtime/sharedRuntime.cpp
+@@ -1319,7 +1319,8 @@ methodHandle SharedRuntime::resolve_sub_helper(JavaThread *thread,
+         }
+       } else {
+         CompiledStaticCall* ssc = compiledStaticCall_before(caller_frame.pc());
+-        if (ssc->is_clean()) ssc->set(static_call_info);
++        // Compiler sees 'this' as null on Zero but it should never actually get called
++        NOT_ZERO(if (ssc->is_clean()) ssc->set(static_call_info));
+       }
+     }
+ 
