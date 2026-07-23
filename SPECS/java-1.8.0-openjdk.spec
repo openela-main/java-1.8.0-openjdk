@@ -3,6 +3,98 @@
 # it and then adjust portablerelease and portablesuffix
 # to match the new portable.
 
+# New Version-String scheme-style defines
+%global majorver 8
+# Define version of OpenJDK 8 used
+%global project openjdk
+%global repo shenandoah-jdk8u
+%global openjdk_revision 8u502-b07
+%global shenandoah_revision shenandoah%{openjdk_revision}
+# e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
+%global version_tag     %(VERSION=%{shenandoah_revision}; echo ${VERSION%%-shenandoah-merge*})
+# eg # jdk8u60-b27 -> jdk8u60 or # aarch64-jdk8u60-b27 -> aarch64-jdk8u60  (dont forget spec escape % by %%)
+%global whole_update    %(VERSION=%{version_tag}; echo ${VERSION%%-*})
+# eg  jdk8u60 -> 60 or aarch64-jdk8u60 -> 60
+%global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
+# eg jdk8u60-b27 -> b27
+%global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
+%global portablerelease 1
+%global rpmrelease 1
+
+# Define IcedTea version used for SystemTap tapsets and desktop files
+%global icedteaver      3.15.0
+# Define current Git revision for the FIPS support patches
+%global fipsver 6d1aade0648
+# Define current Git revision for the cacerts patch
+%global cacertsver 8139f2361c2
+%global javaver         1.%{majorver}.0
+
+# Standard JPackage naming and versioning defines
+%global origin          openjdk
+%global origin_nice     OpenJDK
+%global top_level_dir_name   %{shenandoah_revision}
+
+# Define milestone (EA for pre-releases, GA ("fcs") for releases)
+# Release will be (where N is usually a number starting at 1):
+# - 0.N.ea<dist> for EA releases,
+# - N<dist> for GA releases
+%global is_ga           1
+%if %{is_ga}
+%global milestone          fcs
+%global milestone_version  %{nil}
+%global extraver %{nil}
+%global eaprefix %{nil}
+%else
+%global milestone          ea
+%global milestone_version  "-ea"
+%global extraver .%{milestone}
+%global eaprefix 0.
+%endif
+
+%global compatiblename  java-%{javaver}-%{origin}
+
+Name:    %{compatiblename}
+Version: %{javaver}.%{updatever}.%{buildver}
+Release: %{?eaprefix}%{portablerelease}.%{rpmrelease}%{?extraver}%{?dist}
+
+%global fullversion     %{compatiblename}-%{version}-%{release}
+
+# java-1.5.0-ibm from jpackage.org set Epoch to 1 for unknown reasons
+# and this change was brought into RHEL-4. java-1.5.0-ibm packages
+# also included the epoch in their virtual provides. This created a
+# situation where in-the-wild java-1.5.0-ibm packages provided "java =
+# 1:1.5.0". In RPM terms, "1.6.0 < 1:1.5.0" since 1.6.0 is
+# interpreted as 0:1.6.0. So the "java >= 1.6.0" requirement would be
+# satisfied by the 1:1.5.0 packages. Thus we need to set the epoch in
+# JDK package >= 1.6.0 to 1, and packages referring to JDK virtual
+# provides >= 1.6.0 must specify the epoch, "java >= 1:1.6.0".
+
+Epoch:   1
+Summary: %{origin_nice} %{majorver} Runtime Environment
+Group:   Development/Languages
+
+# HotSpot code is licensed under GPLv2
+# JDK library code is licensed under GPLv2 with the Classpath exception
+# The Apache license is used in code taken from Apache projects (primarily JAXP & JAXWS)
+# DOM levels 2 & 3 and the XML digital signature schemas are licensed under the W3C Software License
+# The JSR166 concurrency code is in the public domain
+# The BSD and MIT licenses are used for a number of third-party libraries (see THIRD_PARTY_README)
+# The OpenJDK source tree includes the JPEG library (IJG), zlib & libpng (zlib), giflib and LCMS (MIT)
+# The test code includes copies of NSS under the Mozilla Public License v2.0
+# The PCSClite headers are under a BSD with advertising license
+# The elliptic curve cryptography (ECC) source code is licensed under the LGPLv2.1 or any later version
+License:  ASL 1.1 and ASL 2.0 and BSD and BSD with advertising and GPL+ and GPLv2 and GPLv2 with exceptions and IJG and LGPLv2+ and MIT and MPLv2.0 and Public Domain and W3C and zlib
+URL:      http://openjdk.java.net/
+
+# Settings used by the portable build
+# Release field for the portable build
+# The rpmrelease field is always zero for portables
+%global prelease %{?eaprefix}%{portablerelease}.0%{?extraver}
+# Portable suffix differs between RHEL and CentOS
+%global portablerhel 8
+%global portablebuilddir /builddir/build/BUILD
+%global portablesuffix el%{portablerhel}
+
 # RPM conditionals so as to be able to dynamically produce
 # slowdebug/release builds. See:
 # http://rpm.org/user_doc/conditional_builds.html
@@ -98,7 +190,7 @@
 #    rpm -ql --noghost java-11-openjdk-headless-11.0.1.13-8.fc29.x86_64.rpm  | grep bin
 # == rpm -ql           java-11-openjdk-headless-slowdebug-11.0.1.13-8.fc29.x86_64.rpm  | grep bin
 # != rpm -ql           java-11-openjdk-headless-11.0.1.13-8.fc29.x86_64.rpm  | grep bin
-# similarly for other %%{_jvmdir}/{jre,java} and %%{_javadocdir}/{java,java-zip}
+# similarly for other <_jvmdir>/{jre,java} and <_javadocdir>/{java,java-zip}
 
 # Indicates whether this is the default JDK on this version of RHEL
 %global is_system_jdk 1
@@ -107,6 +199,9 @@
 # we need to distinguish between big and little endian PPC64
 %global ppc64le         ppc64le
 %global ppc64be         ppc64 ppc64p7
+
+# Define the architectures on which we build
+ExclusiveArch: %{aarch64} %{ix86} %{ppc64le} s390x x86_64
 # Set of architectures which support multiple ABIs
 %global multilib_arches %{power64} sparc64 x86_64
 # Set of architectures for which we build slowdebug builds
@@ -295,26 +390,6 @@
 %global with_systemtap 0
 %endif
 
-# New Version-String scheme-style defines
-%global majorver 8
-
-# Define version of OpenJDK 8 used
-%global project openjdk
-%global repo shenandoah-jdk8u
-%global openjdk_revision 8u492-b09
-%global shenandoah_revision shenandoah%{openjdk_revision}
-# Define IcedTea version used for SystemTap tapsets and desktop files
-%global icedteaver      3.15.0
-# Define current Git revision for the FIPS support patches
-%global fipsver 6d1aade0648
-# Define current Git revision for the cacerts patch
-%global cacertsver 8139f2361c2
-
-# Standard JPackage naming and versioning defines
-%global origin          openjdk
-%global origin_nice     OpenJDK
-%global top_level_dir_name   %{shenandoah_revision}
-
 # Settings for local security configuration
 %global security_file %{top_level_dir_name}/jdk/src/share/lib/security/java.security-%{_target_os}
 %global cacerts_file /etc/pki/java/cacerts
@@ -339,38 +414,7 @@
 %endif
 %endif
 
-# e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
-%global version_tag     %(VERSION=%{shenandoah_revision}; echo ${VERSION%%-shenandoah-merge*})
-# eg # jdk8u60-b27 -> jdk8u60 or # aarch64-jdk8u60-b27 -> aarch64-jdk8u60  (dont forget spec escape % by %%)
-%global whole_update    %(VERSION=%{version_tag}; echo ${VERSION%%-*})
-# eg  jdk8u60 -> 60 or aarch64-jdk8u60 -> 60
-%global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
-# eg jdk8u60-b27 -> b27
-%global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      1
-# Settings used by the portable build
-%global portablerelease 1
-%global portablerhel 8
-%global portablesuffix el%{portablerhel}
-%global portablebuilddir /builddir/build/BUILD
-
-# Define milestone (EA for pre-releases, GA ("fcs") for releases)
-# Release will be (where N is usually a number starting at 1):
-# - 0.N%%{?extraver}%%{?dist} for EA releases,
-# - N%%{?extraver}{?dist} for GA releases
-%global is_ga           1
-%if %{is_ga}
-%global milestone          fcs
-%global milestone_version  %{nil}
-%global extraver %{nil}
-%global eaprefix %{nil}
-%else
-%global milestone          ea
-%global milestone_version  "-ea"
-%global extraver .%{milestone}
-%global eaprefix 0.
-%endif
-# priority must be 7 digits in total. The expression is workarounding tip
+# priority must be 7 digits in total; up to openjdk 1.8
 %if %is_system_jdk
 %global priority        %(TIP=1800%{updatever};  echo ${TIP/tip/999})
 %else
@@ -378,11 +422,6 @@
 %global priority 00000%{interimver}1
 %endif
 
-%global javaver         1.%{majorver}.0
-
-# parametrized macros are order-sensitive
-%global compatiblename  %{name}
-%global fullversion     %{compatiblename}-%{version}-%{release}
 # output dir stub
 %define installoutputdir() %{expand:install/jdk8.install%{?1}}
 # we can copy the javadoc to not arched dir, or make it not noarch
@@ -413,7 +452,7 @@
 %global rpm_state_dir %{_localstatedir}/lib/rpm-state/
 
 # For flatpack builds hard-code /usr/sbin/alternatives,
-# otherwise use %%{_sbindir} relative path.
+# otherwise use <_sbindir> relative path.
 %if 0%{?flatpak}
 %global alternatives_requires /usr/sbin/alternatives
 %else
@@ -437,7 +476,7 @@
 %global tapsetdir %{tapsetdirttapset}/%{stapinstall}
 %endif
 
-# not-duplicated scriptlets for normal/debug packages
+# non-duplicated scriptlets for normal/debug packages
 %global update_desktop_icons /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %define save_alternatives() %{expand:
@@ -814,6 +853,7 @@ exit 0
 %license %{_jvmdir}/%{jredir -- %{?1}}/ASSEMBLY_EXCEPTION
 %license %{_jvmdir}/%{jredir -- %{?1}}/LICENSE
 %license %{_jvmdir}/%{jredir -- %{?1}}/THIRD_PARTY_README
+%dir %{_defaultdocdir}/%{uniquejavadocdir -- %{?1}}
 %doc %{_defaultdocdir}/%{uniquejavadocdir -- %{?1}}/NEWS
 %doc %{_defaultdocdir}/%{uniquejavadocdir -- %{?1}}/README.md
 %doc %{_defaultdocdir}/%{uniquejavadocdir -- %{?1}}/java-1.%{majorver}.0-openjdk-portable.specfile
@@ -1121,6 +1161,7 @@ exit 0
 
 %define files_javadoc_zip() %{expand:
 %defattr(-,root,root,-)
+%dir %{_javadocdir}/%{uniquejavadocdir -- %{?1}}
 %doc %{_javadocdir}/%{uniquejavadocdir -- %{?1}}.zip
 %license %{installoutputdir -- %{?1}}/jre/LICENSE
 }
@@ -1165,8 +1206,8 @@ Provides: jre%{?1} = %{epoch}:%{javaver}
 Requires: ca-certificates
 # Require javapackages-filesystem for ownership of /usr/lib/jvm/
 Requires: javapackages-filesystem
-# 2026a required as of JDK-8379035
-Requires: tzdata-java >= 2026a
+# 2026b required as of JDK-8383175
+Requires: tzdata-java >= 2026b
 # for support of kernel stream control
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
@@ -1293,47 +1334,14 @@ Provides: java-%{javaver}-%{origin}-accessibility = %{epoch}:%{version}-%{releas
 # Prevent brp-java-repack-jars from being run
 %global __jar_repack 0
 
-Name:    java-%{javaver}-%{origin}
-Version: %{javaver}.%{updatever}.%{buildver}
-Release: %{?eaprefix}%{rpmrelease}%{?extraver}%{?dist}
-# Equivalent for the portable build
-%global pversion %{version}
-%global prelease %{?eaprefix}%{portablerelease}%{?extraver}
-# java-1.5.0-ibm from jpackage.org set Epoch to 1 for unknown reasons
-# and this change was brought into RHEL-4. java-1.5.0-ibm packages
-# also included the epoch in their virtual provides. This created a
-# situation where in-the-wild java-1.5.0-ibm packages provided "java =
-# 1:1.5.0". In RPM terms, "1.6.0 < 1:1.5.0" since 1.6.0 is
-# interpreted as 0:1.6.0. So the "java >= 1.6.0" requirement would be
-# satisfied by the 1:1.5.0 packages. Thus we need to set the epoch in
-# JDK package >= 1.6.0 to 1, and packages referring to JDK virtual
-# provides >= 1.6.0 must specify the epoch, "java >= 1:1.6.0".
-
-Epoch:   1
-Summary: %{origin_nice} %{majorver} Runtime Environment
-Group:   Development/Languages
-
-# HotSpot code is licensed under GPLv2
-# JDK library code is licensed under GPLv2 with the Classpath exception
-# The Apache license is used in code taken from Apache projects (primarily JAXP & JAXWS)
-# DOM levels 2 & 3 and the XML digital signature schemas are licensed under the W3C Software License
-# The JSR166 concurrency code is in the public domain
-# The BSD and MIT licenses are used for a number of third-party libraries (see THIRD_PARTY_README)
-# The OpenJDK source tree includes the JPEG library (IJG), zlib & libpng (zlib), giflib and LCMS (MIT)
-# The test code includes copies of NSS under the Mozilla Public License v2.0
-# The PCSClite headers are under a BSD with advertising license
-# The elliptic curve cryptography (ECC) source code is licensed under the LGPLv2.1 or any later version
-License:  ASL 1.1 and ASL 2.0 and BSD and BSD with advertising and GPL+ and GPLv2 and GPLv2 with exceptions and IJG and LGPLv2+ and MIT and MPLv2.0 and Public Domain and W3C and zlib
-URL:      http://openjdk.java.net/
-
 # Shenandoah HotSpot
 # openjdk/shenandoah-jdk8u contains an integration forest of
 # OpenJDK 8u and the Shenandoah garbage collector
 # To regenerate, use:
-# VERSION=%%{shenandoah_revision}
+# VERSION=<shenandoah_revision>
 # FILE_NAME_ROOT=${VERSION}
 # REPO_ROOT=<path to checked-out repository> generate_source_tarball.sh
-# where the source is obtained from http://github.com/%%{project}/%%{repo}
+# where the source is obtained from http://github.com/<project>/<repo>
 Source0: %{shenandoah_revision}.tar.xz
 
 # Use 'icedtea_sync.sh' to update the following
@@ -1382,11 +1390,11 @@ Source21: NEWS
 Source22: repack_reproducible_policies.sh
 
 # Setup variables to reference correct sources
-%global releasezip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.unstripped.jdk.%{_arch}.tar.xz
-%global docszip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.docs.%{_arch}.tar.xz
-%global misczip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.misc.%{_arch}.tar.xz
-%global slowdebugzip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.slowdebug.jdk.%{_arch}.tar.xz
-%global fastdebugzip %{_jvmdir}/%{name}-portable-%{pversion}-%{prelease}.portable.fastdebug.jdk.%{_arch}.tar.xz
+%global releasezip %{_jvmdir}/%{name}-%{version}-%{prelease}.portable.unstripped.jdk.%{_arch}.tar.xz
+%global docszip %{_jvmdir}/%{name}-%{version}-%{prelease}.portable.docs.%{_arch}.tar.xz
+%global misczip %{_jvmdir}/%{name}-%{version}-%{prelease}.portable.misc.%{_arch}.tar.xz
+%global slowdebugzip %{_jvmdir}/%{name}-%{version}-%{prelease}.portable.slowdebug.jdk.%{_arch}.tar.xz
+%global fastdebugzip %{_jvmdir}/%{name}-%{version}-%{prelease}.portable.fastdebug.jdk.%{_arch}.tar.xz
 
 ############################################
 #
@@ -1406,10 +1414,12 @@ Patch534: rh1648246-always_instruct_vm_to_assume_multiple_processors_are_availab
 Patch1000: rh1648249-add_commented_out_nss_cfg_provider_to_java_security.patch
 # RH1582504: Use RSA as default for keytool, as DSA is disabled in all crypto policies except LEGACY
 Patch1003: rh1582504-rsa_default_for_keytool.patch
+# RH1750419: Enable build of speculative store bypass hardened alt-java (CVE-2018-3639)
+Patch600: rh1750419-redhat_alt_java.patch
 
 # Crypto policy and FIPS support patches
 # Patch is generated from the fips tree at https://github.com/rh-openjdk/jdk8u/tree/fips
-# as follows: git diff %%{openjdk_revision} common jdk > fips-8u-$(git show -s --format=%h HEAD).patch
+# as follows: git diff <openjdk_revision> common jdk > fips-8u-$(git show -s --format=%h HEAD).patch
 # Diff is limited to src and make subdirectories to exclude .github changes
 # Fixes currently included:
 # PR3183, RH1340845: Support Fedora/RHEL8 system crypto policy
@@ -1453,8 +1463,8 @@ Patch528: pr3083-rh1346460-for_ssl_debug_return_null_instead_of_exception_when_t
 Patch539: pr2888-rh2055274-support_system_cacerts-%{cacertsver}.patch
 # RH1684077, JDK-8009550: Depend on pcsc-lite-libs instead of pcsc-lite-devel as this is only in optional repo
 Patch541: rh1684077-openjdk_should_depend_on_pcsc-lite-libs_instead_of_pcsc-lite-devel.patch
-# RH1750419: Enable build of speculative store bypass hardened alt-java (CVE-2018-3639)
-Patch600: rh1750419-redhat_alt_java.patch
+# JDK-8385876: [8u] hotspot/src/share/vm/code/compiledIC.cpp:406:30: error: 'this' pointer is null
+Patch542: jdk8385876-zero_this_pointer_is_null.patch
 
 #############################################
 #
@@ -1582,22 +1592,22 @@ BuildRequires: zip
 # For definitions and macros like jvmdir
 BuildRequires: javapackages-filesystem
 %if %{include_normal_build}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-unstripped = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-unstripped = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
 %endif
 %if %{include_fastdebug_build}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-fastdebug = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-fastdebug = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
 %endif
 %if %{include_debug_build}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-slowdebug = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-devel-slowdebug = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
 %endif
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-docs = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
-BuildRequires: java-1.%{majorver}.0-openjdk-portable-misc = %{epoch}:%{pversion}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-docs = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
+BuildRequires: java-1.%{majorver}.0-openjdk-portable-misc = %{epoch}:%{version}-%{prelease}.%{portablesuffix}
 # Zero-assembler build requirement
 %ifarch %{zero_arches}
 BuildRequires: libffi-devel
 %endif
-# 2026a required as of JDK-8379035
-BuildRequires: tzdata-java >= 2026a
+# 2026b required as of JDK-8383175
+BuildRequires: tzdata-java >= 2026b
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -1618,13 +1628,13 @@ Provides: bundled(freetype) = 2.14.2
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
 Provides: bundled(giflib) = 6.1.2
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
-Provides: bundled(lcms2) = 2.15.0
+Provides: bundled(lcms2) = 2.19.1
 # Version in jdk/src/share/native/sun/awt/image/jpeg/jpeglib.h
 Provides: bundled(libjpeg) = 6b
 # Version in jdk/src/share/native/sun/awt/libpng/png.h
 Provides: bundled(libpng) = 1.6.57
 # Version in jdk/src/share/native/java/util/zip/zlib/zlib.h
-Provides: bundled(zlib) = 1.3.1
+Provides: bundled(zlib) = 1.3.2
 %endif
 
 # this is always built, also during debug-only build
@@ -1898,12 +1908,14 @@ echo "Milestone: %{milestone}"
 export XZ_OPT="-T0"
 %endif
 %setup -q -c -n %{uniquesuffix ""} -T -a 0
+
 # https://bugzilla.redhat.com/show_bug.cgi?id=1189084
 prioritylength=`expr length %{priority}`
 if [ $prioritylength -ne 7 ] ; then
  echo "priority must be 7 digits in total, violated"
  exit 14
 fi
+
 # For old patches
 ln -s %{top_level_dir_name} jdk8
 ln -s %{top_level_dir_name} openjdk
@@ -1916,20 +1928,6 @@ cp %{SOURCE100} %{top_level_dir_name}/common/autoconf/build-aux/
 cp %{SOURCE101} %{top_level_dir_name}/common/autoconf/build-aux/
 
 # OpenJDK patches
-
-# This syntax is deprecated:
-#    %patchN [...]
-# and should be replaced with:
-#    %patch -PN [...]
-# For example:
-#    %patch1001 -p1
-# becomes:
-#    %patch -P1001 -p1
-# The replacement format suggested by recent (circa Fedora 38) RPM
-# deprecation messages:
-#    %patch N [...]
-# is not backward-compatible with prior (circa RHEL-8) versions of
-# rpmbuild.
 
 %if %{system_libs}
 # Remove libraries that are linked
@@ -1972,6 +1970,7 @@ pushd %{top_level_dir_name}
 %patch -P502 -p1
 %patch -P14 -p1
 %patch -P15 -p1
+%patch -P542 -p1
 popd
 
 # Early fixes
@@ -2083,7 +2082,7 @@ for suffix in %{build_loop} ; do
 %endif
 %endif
     # Fix build paths in ELF files so it looks like we built them
-    portablenvr="%{name}-portable-%{pversion}-%{prelease}.%{portablesuffix}.%{_arch}"
+    portablenvr="%{name}-%{VERSION}-%{prelease}.%{portablesuffix}.%{_arch}"
     for file in $(find ${installdir} -type f) ; do
         if ! echo ${file} | grep -q 'libffi' ; then
             if file ${file} | grep -q 'ELF'; then
@@ -2426,9 +2425,9 @@ done
 -- see https://bugzilla.redhat.com/show_bug.cgi?id=1290388 for pretrans over pre
 -- if copy-jdk-configs is in transaction, it installs in pretrans to temp
 -- if copy_jdk_configs is in temp, then it means that copy-jdk-configs is in transaction  and so is
--- preferred over one in %%{_libexecdir}. If it is not in transaction, then depends
+-- preferred over one in <_libexecdir>. If it is not in transaction, then depends
 -- whether copy-jdk-configs is installed or not. If so, then configs are copied
--- (copy_jdk_configs from %%{_libexecdir} used) or not copied at all
+-- (copy_jdk_configs from <_libexecdir> used) or not copied at all
 local posix = require "posix"
 
 if (os.getenv("debug") == "true") then
@@ -2716,6 +2715,51 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Fri Jul 17 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.502.b07-1.1
+- Update to 8u502-b07 (GA).
+- Update release notes for 8u502-b07.
+- Bump lcms2 version to 2.19.1 following JDK-8321489, JDK-8348110, JDK-8375065 & JDK-8383354
+- Bump zlib version to 1.3.2 following JDK-8378631
+- Require tzdata 2026b due to upstream inclusion of JDK-8383175
+- Add attempted patch for JDK-8385876 to fix -Wnonnull build failure with s390x Zero on CentOS 9
+- Remove macro references in comments where possible (%dnl not compatible enough yet)
+- Move version information and core NVR definitions back towards the top of the file
+- Explictly define supported architectures
+- Specify portablerelease and rpmrelease (always 0 for portables) in the Release field
+- Make zone string debug output optional in TestTranslations
+- Change javadoc-zip to just own the top-level directory, not include the entire subtree
+- Update tagged versions to include 9.8.0-z & 9.9.0.
+- Cleanup tagging and gating scripts to appease shellcheck:
+- * scripts/builds/build_vanilla.sh: Use an array to handle the varying arguments to rhpkg.
+- * scripts/builds/check_signatures.sh: Quote variable usage.
+- * scripts/builds/waive_issue.sh: Remove redundant 'test "x"' usage.
+- * scripts/builds/waive_leapp_issue.sh: Likewise.
+- * scripts/builds/waive_rpminspect.sh: Likewise.
+- * scripts/builds/waive_usual_rpminspect.sh: Likewise and add missing WORKING_DIR variable.
+- * scripts/builds/waive_usual_tier0.sh: Remove redundant 'test "x"' usage.
+- Obsolete old RHEL releases (8.2.0-z, 9.0.0-z, 9.7.0-z)
+- Sync the copy of the portable specfile with the latest update
+- Sync portable naming with later JDKs, due to adoption of <compatiblename> by portable
+- Drop <pversion> which is a redundant alias for version now
+- Update tagging scripts to include signature checks and correctly handle gating
+- Add gating scripts to simplify obtaining results and waiving issues
+- ** This tarball is embargoed until 2026-07-21 @ 1pm PT. **
+- Resolves: RHEL-212354
+- Resolves: RHEL-188874
+- Resolves: RHEL-212132
+- Resolves: RHEL-212311
+- Resolves: RHEL-212317
+- Related: RHEL-212322
+- Resolves: RHEL-212355
+- Resolves: RHEL-212356
+- Resolves: RHEL-212357
+- Resolves: RHEL-212358
+
+* Fri Jul 17 2026 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.502.b07-1.1
+- Make headless own /usr/share/doc/java-1.8.0-openjdk
+- Make javadoc-zip own /usr/share/javadoc/java-1.8.0-openjdk
+- Resolves: RHEL-212322
+
 * Fri Apr 17 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.492.b09-1
 - Update to 8u492-b09 (GA)
 - Update release notes for 8u492-b09.
