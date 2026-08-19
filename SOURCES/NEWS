@@ -3,11 +3,36 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u504 (2026-08-18):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u504
+
+* CVEs
+* Changes
+  - JDK-8382471: Improve Resource Resolving
+  - JDK-8384708: Enhance HTTP Connections
+  - JDK-8385390: Update FreeType to 2.14.3
+  - JDK-8386205: Enhance TLS server
+  - JDK-8388811: [8u] VS2010 build broken by JDK-8374058
+  - JDK-8389477: Bump update version for OpenJDK: 8u504
+
 New in release OpenJDK 8u502 (2026-07-21):
 ===========================================
 Live versions of these release notes can be found at:
   * https://bit.ly/openjdk8u502
 
+* CVEs
+  - CVE-2026-46968
+  - CVE-2026-47010
+  - CVE-2026-47021
+  - CVE-2026-47027
+  - CVE-2026-60147
+  - CVE-2026-47059
+  - CVE-2026-47063
+  - CVE-2026-47057
+  - CVE-2026-47058
+  - CVE-2026-41254
 * Changes
   - JDK-6815126: intermittent SimulResumerTest.java failure
   - JDK-8162545: Mac build failure
