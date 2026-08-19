@@ -8,7 +8,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u502-b07
+%global openjdk_revision 8u504-b01
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
 %global version_tag     %(VERSION=%{shenandoah_revision}; echo ${VERSION%%-shenandoah-merge*})
@@ -1719,7 +1719,7 @@ BuildRequires: libpng-devel
 BuildRequires: zlib-devel
 %else
 # Version in jdk/src/share/native/sun/awt/libfreetype/include/freetype/freetype.h
-Provides: bundled(freetype) = 2.14.2
+Provides: bundled(freetype) = 2.14.3
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
 Provides: bundled(giflib) = 6.1.2
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
@@ -2961,6 +2961,24 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Wed Aug 12 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-1.2
+- Add CVEs for August 2026 release
+- Bump release for PQC build
+- ** This tarball is embargoed until 2026-08-18 @ 1pm PT. **
+- Related: RHEL-235603
+
+* Mon Aug 10 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-1.1
+- Update to 8u504-b01 (GA).
+- Update release notes for 8u504-b01.
+- Bump FreeType version to 2.14.3 following JDK-8385390
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2026-08-18 @ 1pm PT. **
+- Resolves: RHEL-235603
+
+* Mon Jul 27 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.502.b07-2.1
+- Add CVEs to NEWS file
+- Related: RHEL-188852
+
 * Sat Jul 18 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.502.b07-1.2
 - Bump release for PQC build
 - Related: RHEL-212095
