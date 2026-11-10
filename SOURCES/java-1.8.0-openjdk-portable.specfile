@@ -13,7 +13,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global portablerelease 1
+%global portablerelease 2
 %global rpmrelease 0
 
 # Define IcedTea version used for SystemTap tapsets and desktop file
@@ -1538,6 +1538,11 @@ done
 %endif
 
 %changelog
+* Wed Aug 12 15:48:31 BST 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-2.0
+- Add CVEs for August 2026 release
+- ** This tarball is embargoed until 2026-08-18 @ 1pm PT. **
+- Related: OPENJDK-5034
+
 * Mon Aug 10 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-1.0
 - Update to 8u504-b01 (GA).
 - Update release notes for 8u504-b01.
@@ -1581,16 +1586,13 @@ done
 - so we have to pass in "" but evaluate it, otherwise files record will include it
 - Resolves: OPENJDK-4896
 
-* Sat Apr 18 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.492.b09-2
-- Add CVEs for 8u482 & 8u492 to NEWS
+* Wed Jul 15 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.492.b09-2
 - Add attempted patch for JDK-8385876 to fix -Wnonnull build failure with s390x Zero on CentOS 9
 - Workaround -Wnonull failure with ppc64le on CentOS 9 using -Wno-nonnull
 - Workaround -Werror=stringop-overflow failure with JIT debug builds on CentOS 9 using -Wno-error=stringop-overflow
-- Workaround undefined symbol: _ZN16G1TriggerClosure9do_oop_nvIjEEvPT_ by disabling LTO
 - Resolves: OPENJDK-4893
 - Resolves: OPENJDK-4894
 - Resolves: OPENJDK-4895
-- Resolves: OPENJDK-4909
 
 * Fri Apr 17 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.492.b09-1
 - Update to 8u492-b09 (GA)
@@ -1838,6 +1840,7 @@ done
 - Regenerate PR2462 patch following JDK-8315135
 - Bump version of bundled libpng to 1.6.39
 - Add backport of JDK-8312489 heading upstream for 8u402 (see OPENJDK-2095)
+- Workaround undefined symbol: _ZN16G1TriggerClosure9do_oop_nvIjEEvPT_ by disabling LTO
 - ** This tarball is embargoed until 2023-10-17 @ 1pm PT. **
 
 * Fri Sep 29 2023 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.392.b01-1

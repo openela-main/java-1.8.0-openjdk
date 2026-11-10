@@ -18,8 +18,8 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global portablerelease 1
-%global rpmrelease 2
+%global portablerelease 2
+%global rpmrelease 1
 
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -2961,6 +2961,10 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Sun Aug 23 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-2.1
+- Sync the copy of the portable specfile with the latest update
+- Related: RHEL-235603
+
 * Wed Aug 12 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-1.2
 - Add CVEs for August 2026 release
 - Bump release for PQC build
