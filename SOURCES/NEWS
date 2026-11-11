@@ -3,12 +3,347 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u512 (2026-11-03):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u512
+
+* CVEs
+  - CVE-2026-83374
+  - CVE-2026-83376
+  - CVE-2026-83380
+  - CVE-2026-83381
+  - CVE-2026-83387
+  - CVE-2026-83395
+  - CVE-2026-83400
+  - CVE-2026-87290
+  - CVE-2026-87292
+  - CVE-2026-87293
+  - CVE-2026-87294
+  - CVE-2026-87367
+  - CVE-2026-91334
+  - CVE-2026-91335
+  - CVE-2026-91373
+  - CVE-2026-91374
+  - CVE-2026-91380
+  - CVE-2026-91381
+  - CVE-2026-91382
+  - CVE-2026-91395
+  - CVE-2026-91396
+  - CVE-2026-91397
+  - CVE-2026-91398
+  - CVE-2026-91400
+  - CVE-2026-91403
+  - CVE-2026-91410
+  - CVE-2026-91411
+  - CVE-2026-91415
+  - CVE-2026-91417
+  - CVE-2026-91418
+  - CVE-2026-91451
+  - CVE-2026-91452
+  - CVE-2026-91453
+  - CVE-2026-91461
+  - CVE-2026-91462
+  - CVE-2026-91463
+  - CVE-2026-91464
+  - CVE-2026-101516
+  - CVE-2026-114820
+* Changes
+  - JDK-8186464: ZipFile cannot read some InfoZip ZIP64 zip files
+  - JDK-8194630: GSS: Uninitialized cb->initiator_address when using channel binding with native kerberos
+  - JDK-8204539: improve error messages in matchJavaTZ [windows]
+  - JDK-8239798: SSLSocket closes socket both socket endpoints on a SocketTimeoutException
+  - JDK-8240226: DeflateIn_InflateOut.java test incorrectly assumes size of compressed file
+  - JDK-8250839: Improve test template SSLEngineTemplate with SSLContextTemplate
+  - JDK-8252250: isnanf is obsolete
+  - JDK-8255380: (zipfs) ZipFileSystem::readExtra can fail if zipinfo-time is not set to false
+  - JDK-8259662: Don't wrap SocketExceptions into SSLExceptions in SSLSocketImpl
+  - JDK-8264666: Change implementation of safeAdd/safeMult in the LCMSImageLayout class
+  - JDK-8267617: Certificate's IP x509 NameConstraints raises ArrayIndexOutOfBoundsException
+  - JDK-8270915: GIFImageReader disregards ignoreMetadata flag which causes memory exhaustion
+  - JDK-8272746: ZipFile can't open big file (NegativeArraySizeException)
+  - JDK-8282201: Consider removal of expiry check in VerifyCACerts.java test
+  - JDK-8290368: Introduce LDAP and RMI protocol-specific object factory filters to JNDI implementation
+  - JDK-8298240: Replace the usage of ImageLayoutException by the CMMException
+  - JDK-8298730: Refactor subsystem_file_line_contents and add docs and tests
+  - JDK-8300167: Add validation of the raster's layout before using in native
+  - JDK-8303215: Make thread stacks not use huge pages
+  - JDK-8304013: Add a fast, non-manual alternative to test/jdk/java/util/zip/ZipFile/TestTooManyEntries
+  - JDK-8313083: Print 'rss' and 'cache' as part of the container information
+  - JDK-8316391: (zipfs) ZipFileSystem.readFullyAt does not tolerate short reads
+  - JDK-8325680: Uninitialised memory in deleteGSSCB of GSSLibStub.c:179
+  - JDK-8341625: Improve ZipFile validation of the END header
+  - JDK-8345149: [8u] javax/sound/midi/Soundbanks/GetSoundBankSecurityException/GetSoundBankSecurityException.java fails with FileSystemException
+  - JDK-8347000: Bug in com/sun/net/httpserver/bugs/B6361557.java test
+  - JDK-8347129: cpuset cgroups controller is required for no good reason
+  - JDK-8347811: Container detection code for cgroups v2 should use cgroup.controllers
+  - JDK-8349988: Change cgroup version detection logic to not depend on /proc/cgroups
+  - JDK-8354878: File Leak in CgroupSubsystemFactory::determine_type of cgroupSubsystem_linux.cpp:300
+  - JDK-8369032: Add test to ensure serialized ICC_Profile stores only necessary optional data
+  - JDK-8373677: Clear text HttpServer connection could fail fast if receiving SSL ClientHello
+  - JDK-8377983: (zipfs) ZipFileSystem.initCEN needlessly reads END header
+  - JDK-8377992: (zipfs) Align ZipFileSystem END header validation with the ZipFile implementation
+  - JDK-8378823: AIX build fails after zlib updated by JDK-8378631
+  - JDK-8380715: Enhance PKCS5 padding
+  - JDK-8381379: Support std/dstOffset attributes in CLDR's metazone definitions
+  - JDK-8382178: Enhance TLS certificate handling
+  - JDK-8382407: Enhance LDAP Lookups
+  - JDK-8383047: Enhance LDAP logins
+  - JDK-8383076: Enhance SASL Authentication
+  - JDK-8383281: Enhance MD5 Digesting
+  - JDK-8383301: Enhance WebRowSets
+  - JDK-8383439: Enhance HTTP Client Response Handling
+  - JDK-8383530: Enhance Javadoc Searching
+  - JDK-8383679: Enhance Certificate Name Checks
+  - JDK-8383699: Enhance XPath Expressions
+  - JDK-8383756: Enhance Network Clients
+  - JDK-8383956: Enhance RMI connections
+  - JDK-8384021: Enhance Certificate Constraint Checking
+  - JDK-8384031: Enhance XML Processing
+  - JDK-8384445: Enhance JPEG loading
+  - JDK-8384455: Enhance DataFlavor
+  - JDK-8384654: Enhance Template Handling
+  - JDK-8384664: Enhance Image Handling
+  - JDK-8384746: Enhance Preferences
+  - JDK-8384771: Enhance TLS handshakes
+  - JDK-8384781: Enhance Font Rendering
+  - JDK-8384902: Update GIFlib to 6.1.3
+  - JDK-8384930: Enhance jstatd
+  - JDK-8385219: Enhance Pack200 unpacking
+  - JDK-8385229: Improve Pack200 handling
+  - JDK-8385249: Enhance diagnostic sessions
+  - JDK-8385260: Enhance SOCKS5 support
+  - JDK-8385476: Enhance MIDI file handling
+  - JDK-8386013: Enhance EventListenerList
+  - JDK-8386175: Enhance CORBA
+  - JDK-8386187: Enhance font rendering
+  - JDK-8386275: Bump update version of OpenJDK: 8u512
+  - JDK-8386515: Enhance HTTP server parsing
+  - JDK-8386525: Enhance HTTP Server Handler
+  - JDK-8386535: Improve HTTP headers
+  - JDK-8386552: Enhance GIF loading
+  - JDK-8386783: WebRowSet empty elements read value of previous element
+  - JDK-8386923: Enhance TLS Extensions
+  - JDK-8387123: Remove LuxTrust Global Root CA
+  - JDK-8387152: Enhance krb5 tokens
+  - JDK-8387217: Enhance krb5 client
+  - JDK-8387238: Enhance Kerberos validation
+  - JDK-8388142: [8u] Path to PreferredKey.java exclusion is wrong
+  - JDK-8388214: (tz) Update Timezone Data to 2026c
+  - JDK-8390380: Cherry-pick metazone changes from CLDR to support tzdata2026c for JDK update releases
+  - JDK-8390388: Cherry-pick tz attributes from newer CLDR data for jdk25u and earlier
+  - JDK-8391256: TestZoneTextPrinterParser.java assertion fails with expected: <Mountain Standard Time> but was: <Mountain Daylight Time>
+  - JDK-8392072: Follow-on fix for Improve certification checking
+  - JDK-8392377: (tz) Update Timezone Data to 2026d
+  - JDK-8392519: Cherry-pick metazone changes from CLDR for tzdata2026d, for JDK update release
+  - JDK-8392538: Align the JDK with Microsoft's new timezone names for British Columbia/Alberta
+  - JDK-8393337: (tz) Update Timezone Data to 2026e
+  - JDK-8393344: Cherry-pick metazone changes from CLDR to support tzdata2026e for JDK update releases
+  - JDK-8393848: Align the JDK with Microsoft's new timezone name for Manitoba
+  - JDK-8394265: [21u] Add explicit zone offset test for America/Rainy_River
+  - JDK-8395142: CA Enhancements
+  - JDK-8395369: Adjust aix VirtualMachineImpl.c to latest changes on Linux
+  - JDK-8395690: CA certificate improvements
+  - JDK-8396048: (tz) Update to tzdata2026f
+
+Notes on individual issues:
+===========================
+
+security-libs/javax.net.ssl:
+
+JDK-8259662: Don't wrap SocketExceptions into SSLExceptions in SSLSocketImpl
+============================================================================
+The introduction of the TLS 1.3 implementation in OpenJDK 8u272
+changed the behaviour of SSLSocketImpl and SSLTransport so that a
+SocketException was wrapped inside an SSLException.  This release
+restores the original behaviour where the SocketException is thrown as
+is.
+
+core-libs/javax.naming:
+
+JDK-8290368: Introduce LDAP and RMI protocol-specific object factory filters to JNDI implementation
+===================================================================================================
+In the April 2021 security updates, `jdk.jndi.object.factoriesFilter`
+was introduced as both a System and Security property to control
+whether a specific object factory was permitted to instantiate objects
+from the remote object references obtained using the protocols used in
+JNDI.  By default, it was set to `*` to allow all object factory
+classes.
+
+With this update, two additional properties are introduced for more
+granular control of each JNDI protocol:
+
+* `jdk.jndi.ldap.object.factoriesFilter` which filters object factory
+classes used with object references obtained from a JNDI/LDAP context.
+Its default value is `java.naming/com.sun.jndi.ldap.**;!*` to allow
+only object factories defined in the `java.naming` module.
+
+* `jdk.jndi.rmi.object.factoriesFilter` which filters object factory
+classes used with object references obtained from a JNDI/RMI context.
+Its default value is `jdk.naming.rmi/com.sun.jndi.rmi.**;!*` to allow
+only object factories defined in the `jdk.naming.rmi` module.
+
+All three properties are available as both System and Security
+properties, with the System property taking precedence over the
+Security property where the default is defined.
+
+Each filter can return a result of ALLOWED, REJECTED and UNDECIDED
+using the Status enumeration from `java.io.ObjectInputFilter`.  For an
+object factory class to be accepted, either the global filter,
+`jdk.jndi.object.factoriesFilter`, or the filter for the specific
+protocol must return ALLOWED and neither must return REJECTED.
+
+If an application depends on custom object factories to instantiate
+objects from remote RMI or LDAP object references, the appropriate
+filter property will need to be adjusted to allow these factories to
+function.  Failure to do so will lead to the factory being blocked by
+the filter and a plain `javax.naming.Reference` instance returned
+instead.
+
+JDK-8382407: Enhance LDAP Lookups
+=================================
+In the October 2024 security update, the LDAP provider was altered to
+require an explicit opt-in for the transparent deserialisation of Java
+objects.  Since that release, applications that wish to reconstruct
+Java objects and RMI stubs from LDAP attributes have needed to set the
+System property `com.sun.jndi.ldap.object.trustSerialData` to `true`.
+
+A new System property is introduced in this release,
+`jdk.jndi.ldap.disabledURLSchemes`, to increase the flexibility of
+this filtering.  By default, the setting of this new property will
+follow `com.sun.jndi.ldap.object.trustSerialData` by being set to
+empty if `trustSerialData` is `true` (i.e. no filtering) and "rmi" if
+`trustSerialData` is `false` (the default).  Setting the new property
+to a comma-separated list of schemes allows further filtering to be
+specified, superseding the limited filtering of `trustSerialData`.
+
+hotspot/runtime:
+
+JDK-8313083: Print 'rss' and 'cache' as part of the container information
+=========================================================================
+In this release, the information provided for containers is improved
+by inclusion of the memory usage information for the Resident Set Size
+(RSS) and the cache, in bytes.  This is visible in the output of `jcmd
+<PID> VM.info`, where `<PID>` is the running JVM, and in the `hs_err`
+file generated on abrupt JVM termination.
+
+core-libs/java.net:
+
+JDK-8373677: Clear text HttpServer connection could fail fast if receiving SSL ClientHello
+==========================================================================================
+The backport of this change to OpenJDK 8u introduces a new test case,
+`jdk/test/com/sun/net/httpserver/ClearTextServerSSL.java`.  At
+present, this requires the use of version 7 or later of jtreg, while
+OpenJDK 8 is still often used with earlier versions.  Such cases are
+becoming frequent with such backports and we believe it would be
+better long-term to focus on moving OpenJDK 8 to a higher minimum
+version of jtreg than to continually make significant alterations that
+diverge the test further from the version in OpenJDK 11 and later.  We
+welcome feedback from end users on this issue.
+
+core-libs/java.sql:
+
+JDK-8383301: Enhance WebRowSets
+===============================
+WebRowSet XML is now validated against the standard schema, which is
+packaged with this release (webrowset.xsd and sqlxml.xsd).  If
+validation causes issues with legacy documents, it may be disabled by
+setting the new System property `jdk.sql.rowset.webrowsetValidation`
+to `false`.
+
+xml/jaxp:
+
+JDK-8383699: Enhance XPath Expressions
+======================================
+The XSLT function `system-property()` can be used to access system
+properties of the JDK.  In this release, this access is now restricted
+to those properties defined by XSLT.  To access all system properties
+as before, the new System property `jdk.xml.allowNonXSLTSysProps` must
+be set to `true`.
+
+JDK-8384654: Enhance Template Handling
+======================================
+In this release, the deserialization of instances of the
+`TemplatesImpl` class is now disabled by default.  To re-enable
+deserialization, the System property
+`jdk.xml.enableTemplatesImplDeserialization` must be set to `true`
+
+core-libs/java.rmi:
+
+JDK-8383956: Enhance RMI connections
+====================================
+OpenJDK 8 bundles a CGI script, `java-rmi.cgi.sh`, which can be placed
+on a Web server and used to forward RMI requests via HTTP, using the
+`sun.rmi.transport.proxy.CGIHandler` class.  The port which will
+receive the forwarded requests is specified in the HTTP query string,
+using `forward=<port>`.
+
+In this release, the `CGIHandler` class is updated so that it will
+only forward ports specified by the CGI script using the new System
+property, `sun.rmi.transport.proxy.forwardPermit`.  By default, no
+ports are forwarded.
+
+To continue using this proxy mechanism, the updated `java-rmi.cgi.sh`
+must be placed on the Web server and adjusted so that the
+`FORWARD_PERMIT` shell variable is set to a comma-separated list of
+ports or port ranges.  To retain the old behaviour, `FORWARD_PERMIT`
+should be set to `1024-65535`.
+
+other-libs/corba:
+
+JDK-8386175: Enhance CORBA
+==========================
+A maximum input buffer length is now imposed on CORBA transactions by
+default.  An incoming length field containing a value larger than the
+maximum will trigger a marshalling exception.  This maximum can be
+controlled using the new System property
+`com.sun.CORBA.maximumBufferLength`.  The default value of this
+property is 2,097,152 bytes (or 2^21), which is the same maximum
+acceptable GIOP message size as used by omniORB.  To run with no
+maximum as before, the property should be specified with either no
+value or a value equal to or below zero.
+
+security-libs/java.security:
+
+JDK-8387123: Remove LuxTrust Global Root CA
+===========================================
+The following root certificate from LuxTrust has been removed from the
+`cacerts` keystore:
+
+Alias Name: luxtrustglobalrootca [jdk]
+Distinguished Name: CN=LuxTrust Global Root, O=LuxTrust s.a., C=LU
+SHA256: A1:B2:DB:EB:64:E7:06:C6:16:9E:3C:41:18:B2:3B:AA:09:01:8A:84:27:66:6D:8B:F0:E2:88:91:EC:05:19:50
+
+JDK-8395690: CA certificate improvements
+========================================
+The following root certificates associated with eMudhra have been
+removed from the `cacerts` keystore:
+
+Alias Name: comodoaaaca [jdk]
+Distinguished Name: CN=AAA Certificate Services, O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+SHA256: D7:A7:A0:FB:5D:7E:27:31:D7:71:E9:48:4E:BC:DE:F7:1D:5F:0C:3E:0A:29:48:78:2B:C8:3E:E0:EA:69:9E:F4
+
+Alias Name: emsignrootcag1 [jdk]
+Distinguished Name: CN=emSign Root CA - G1, O=eMudhra Technologies Limited, OU=emSign PKI, C=IN
+SHA256: 40:F6:AF:03:46:A9:9A:A1:CD:1D:55:5A:4E:9C:CE:62:C7:F9:63:46:03:EE:40:66:15:83:3D:C8:C8:D0:03:67
+
+Alias Name: emsigneccrootcag3 [jdk]
+Distinguished Name: CN=emSign ECC Root CA - G3, O=eMudhra Technologies Limited, OU=emSign PKI, C=IN
+SHA256: 86:A1:EC:BA:08:9C:4A:8D:3B:BE:27:34:C6:12:BA:34:1D:81:3E:04:3C:F9:E8:A8:62:CD:5C:57:A3:6B:BE:6B
+
+Alias Name: emsignrootcag2 [jdk]
+Distinguished Name: CN=emSign Root CA - G2, O=eMudhra Technologies Limited, OU=emSign PKI, C=IN
+SHA256: 1A:A0:C2:70:9E:83:1B:D6:E3:B5:12:9A:00:BA:41:F7:EE:EF:02:08:72:F1:E6:50:4B:F0:F6:C3:F2:4F:3A:F3
+
 New in release OpenJDK 8u504 (2026-08-18):
 ===========================================
 Live versions of these release notes can be found at:
   * https://bit.ly/openjdk8u504
 
 * CVEs
+  - CVE-2026-60589
+  - CVE-2026-61308
+  - CVE-2026-70907
 * Changes
   - JDK-8382471: Improve Resource Resolving
   - JDK-8384708: Enhance HTTP Connections
@@ -78,6 +413,9 @@ Live versions of these release notes can be found at:
   - JDK-8383354: Update LCMS to 2.19.1
   - JDK-8383473: Follow on from tzdata2026b time change to include temporary hack BC time change
   - JDK-8384158: GHA: Downgrade Windows GHA runners to windows-2022 temporarily
+
+Notes on individual issues:
+===========================
 
 security-libs/java.security:
 

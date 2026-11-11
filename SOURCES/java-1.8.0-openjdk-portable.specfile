@@ -3,7 +3,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u504-b01
+%global openjdk_revision 8u512-b09
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
 %global version_tag     %(VERSION=%{shenandoah_revision}; echo ${VERSION%%-shenandoah-merge*})
@@ -460,6 +460,9 @@ Source17: nss.fips.cfg.in
 # Ensure translations are available for new timezones
 Source18: TestTranslations.java
 
+# Ensure cacerts has no compromised certificates
+Source19: CheckCerts.java
+
 # New versions of config files with aarch64 support. This is not upstream yet.
 Source100: config.guess
 Source101: config.sub
@@ -577,8 +580,6 @@ Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
 Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 # JDK-8257794: Zero: assert(istate->_stack_limit == istate->_thread->last_Java_sp() + 1) failed: wrong on Linux/x86_32
 Patch581: jdk8257794-remove_broken_assert.patch
-# JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
-Patch12: jdk8186464-rh1433262-zip64_failure.patch
 # JDK-8141590 - Cannot build Zero with devkit
 Patch14: jdk8141590-bundle_libffi.patch
 Patch15: jdk8141590-bundle_libffi-followup.patch
@@ -843,7 +844,6 @@ popd
 %patch -P581
 %patch -P541
 pushd %{top_level_dir_name}
-%patch -P12 -p1
 %patch -P502 -p1
 %patch -P14 -p1
 %patch -P15 -p1
@@ -1348,6 +1348,10 @@ nm $JAVA_HOME/bin/%{alt_java_name} | grep set_speculation
 if ! nm $JAVA_HOME/bin/%{alt_java_name} | grep set_speculation ; then true ; else false; fi
 %endif
 
+# Check cacerts has no compromised certificates
+$JAVA_HOME/bin/javac -d . %{SOURCE19}
+$JAVA_HOME/bin/java $(echo $(basename %{SOURCE19})|sed "s|\.java||")
+
 # Release builds strip the debug symbols into external .debuginfo files
 if [ "x$suffix" = "x" ] ; then
   so_suffix="debuginfo"
@@ -1538,6 +1542,22 @@ done
 %endif
 
 %changelog
+* Wed Nov 04 2026 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.512.b09-1.0
+- Add check for compromised eMudhra certificates in cacerts
+- Resolves: OPENJDK-5273
+
+* Wed Nov 04 2026 Andrew Hughes <gnu_andrew@linux.ibm.com> - 1:1.8.0.512.b09-1.0
+- Update to 8u512-b09 (GA).
+- Update release notes for 8u512-b09.
+- Drop JDK-8186464/RH1433262 patch which is now finally upstream.
+- Sync NEWS file with vanilla branch
+- Resolves: OPENJDK-5170
+
+* Wed Aug 12 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-2.0
+- Add CVEs for August 2026 release
+- ** This tarball is embargoed until 2026-08-18 @ 1pm PT. **
+- Related: OPENJDK-5034
+
 * Mon Aug 10 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-1.0
 - Update to 8u504-b01 (GA).
 - Update release notes for 8u504-b01.
