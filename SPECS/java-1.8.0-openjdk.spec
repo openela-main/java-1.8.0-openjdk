@@ -8,7 +8,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u504-b01
+%global openjdk_revision 8u512-b09
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
 %global version_tag     %(VERSION=%{shenandoah_revision}; echo ${VERSION%%-shenandoah-merge*})
@@ -18,8 +18,8 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global portablerelease 2
-%global rpmrelease 1
+%global portablerelease 1
+%global rpmrelease 2
 
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -1318,8 +1318,8 @@ Provides: jre%{?1} = %{epoch}:%{version}-%{release}
 Requires: ca-certificates
 # Require javapackages-filesystem for ownership of /usr/lib/jvm/ and macros
 Requires: javapackages-filesystem
-# 2026b required as of JDK-8383175
-Requires: tzdata-java >= 2026b
+# 2026f required as of JDK-8396048
+Requires: tzdata-java >= 2026f
 # for support of kernel stream control
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
@@ -1465,17 +1465,20 @@ Source17: nss.fips.cfg.in
 # Ensure translations are available for new timezones
 Source18: TestTranslations.java
 
+# Ensure cacerts has no compromised certificates
+Source19: CheckCerts.java
+
 # New versions of config files with aarch64 support. This is not upstream yet.
 Source100: config.guess
 Source101: config.sub
 
 # Include portable spec and instructions on how to rebuild
-Source19: README.md
-Source20: java-1.%{majorver}.0-openjdk-portable.specfile
-Source21: NEWS
+Source200: README.md
+Source201: java-1.%{majorver}.0-openjdk-portable.specfile
+Source202: NEWS
 
 # Repack export policy JARs with reproducible timestamps
-Source22: repack_reproducible_policies.sh
+Source203: repack_reproducible_policies.sh
 
 # Setup variables to reference correct sources
 %global releasezip %{_jvmdir}/%{name}-%{version}-%{prelease}.portable.unstripped.jdk.%{_arch}.tar.xz
@@ -1597,8 +1600,6 @@ Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
 Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 # JDK-8257794: Zero: assert(istate->_stack_limit == istate->_thread->last_Java_sp() + 1) failed: wrong on Linux/x86_32
 Patch581: jdk8257794-remove_broken_assert.patch
-# JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
-Patch12: jdk8186464-rh1433262-zip64_failure.patch
 # JDK-8141590 - Cannot build Zero with devkit
 Patch14: jdk8141590-bundle_libffi.patch
 Patch15: jdk8141590-bundle_libffi-followup.patch
@@ -1701,8 +1702,8 @@ BuildRequires: java-%{buildjdkver}-openjdk-devel >= 1.7.0.151-2.6.11.3
 BuildRequires: libffi
 BuildRequires: libffi-devel
 %endif
-# 2026b required as of JDK-8383175
-BuildRequires: tzdata-java >= 2026b
+# 2026f required as of JDK-8396048
+BuildRequires: tzdata-java >= 2026f
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -1721,7 +1722,7 @@ BuildRequires: zlib-devel
 # Version in jdk/src/share/native/sun/awt/libfreetype/include/freetype/freetype.h
 Provides: bundled(freetype) = 2.14.3
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
-Provides: bundled(giflib) = 6.1.2
+Provides: bundled(giflib) = 6.1.3
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
 Provides: bundled(lcms2) = 2.19.1
 # Version in jdk/src/share/native/sun/awt/image/jpeg/jpeglib.h
@@ -2029,7 +2030,6 @@ popd
 %patch -P581
 %patch -P541
 pushd %{top_level_dir_name}
-%patch -P12 -p1
 %patch -P502 -p1
 %patch -P14 -p1
 %patch -P15 -p1
@@ -2505,6 +2505,10 @@ nm $JAVA_HOME/bin/%{alt_java_name} | grep set_speculation
 if ! nm $JAVA_HOME/bin/%{alt_java_name} | grep set_speculation ; then true ; else false; fi
 %endif
 
+# Check cacerts has no compromised certificates
+$JAVA_HOME/bin/javac -d . %{SOURCE19}
+$JAVA_HOME/bin/java $(echo $(basename %{SOURCE19})|sed "s|\.java||")
+
 # Check debug symbols are present and can identify code
 find "$JAVA_HOME" -iname '*.so' -print0 | while read -d $'\0' lib
 do
@@ -2593,12 +2597,7 @@ for suffix in %{build_loop} ; do
   # Install release notes and rebuild instructions
   commondocdir=${RPM_BUILD_ROOT}%{_defaultdocdir}/%{uniquejavadocdir -- $suffix}
   install -d -m 755 ${commondocdir}
-%ifarch %{portable_build_arches}
-  mv ${jdk_image}/NEWS ${commondocdir}
-%else
-  cp -a %{SOURCE21} ${commondocdir}
-%endif
-  cp -a %{SOURCE19} %{SOURCE20} ${commondocdir}
+  cp -a %{SOURCE200} %{SOURCE201} %{SOURCE202} ${commondocdir}
 
   # Install the jdk
 
@@ -2719,7 +2718,7 @@ find $RPM_BUILD_ROOT%{_jvmdir}/%{sdkdir -- $suffix}/demo \
   | sed 's|^|%dir |' \
   >> %{name}-demo.files"$suffix"
 
-bash %{SOURCE22} $RPM_BUILD_ROOT/%{_jvmdir}/%{jredir -- $suffix} %{javaver}
+bash %{SOURCE203} $RPM_BUILD_ROOT/%{_jvmdir}/%{jredir -- $suffix} %{javaver}
 # https://bugzilla.redhat.com/show_bug.cgi?id=1183793
 touch -t 201401010000 $RPM_BUILD_ROOT/%{_jvmdir}/%{jredir -- $suffix}/lib/security/java.security
 
@@ -2961,6 +2960,30 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Thu Nov 05 2026 Andrew Hughes <gnu_andrew@linux.ibm.com> - 1:1.8.0.512.b09-1.2
+- Bump release for PQC build
+- Related: RHEL-288487
+- Related: RHEL-302058
+- Related: RHEL-302106
+
+* Wed Nov 04 2026 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.512.b09-1.1
+- Add check for compromised eMudhra certificates in cacerts
+- Resolves: RHEL-302058
+
+* Wed Nov 04 2026 Andrew Hughes <gnu_andrew@linux.ibm.com> - 1:1.8.0.512.b09-1.1
+- Update to 8u512-b09 (GA).
+- Update release notes for 8u512-b09.
+- Drop JDK-8186464/RH1433262 patch which is now finally upstream.
+- Sync NEWS file with vanilla branch
+- Require tzdata 2026f due to upstream inclusion of JDK-8388214, JDK-8392377, JDK-8393337 & JDK-8396048
+- Bump giflib version to 6.1.3 following JDK-8384902
+- Renumber sources which only exist in the RPM to avoid collisions with portable
+- Install the NEWS file from the RPM, not the portable
+- Update tagged versions to include 9.9.0-z & 9.10.0.
+- Sync the copy of the portable specfile with the latest update
+- Resolves: RHEL-288487
+- Resolves: RHEL-302106
+
 * Sun Aug 23 2026 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.504.b01-2.1
 - Sync the copy of the portable specfile with the latest update
 - Related: RHEL-235603
