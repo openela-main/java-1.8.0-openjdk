@@ -3,6 +3,72 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u514 (2026-11-17):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u514
+
+* CVEs
+  - CVE-2026-114939
+  - CVE-2026-114940
+  - CVE-2026-114943
+  - CVE-2026-114944
+  - CVE-2026-114946
+* Changes
+  - JDK-8274205: Handle KDC_ERR_SVC_UNAVAILABLE error code from KDC
+  - JDK-8316771: Krb5.java has not defined messages for all error codes
+  - JDK-8384495: Update Libpng to 1.6.58
+  - JDK-8387162: Enhance Kerberos tickets
+  - JDK-8389830: Enhance JFR Events
+  - JDK-8389989: Enhance loop handling
+  - JDK-8391595: [REDO] Enhance JMX Connections
+  - JDK-8393195: Update Libpng to 1.6.59
+  - JDK-8393456: Improve TLS client connections
+  - JDK-8394492: Update FreeType to 2.15.0
+  - JDK-8396902: Bump update version for OpenJDK: 8u514
+
+Notes on individual issues:
+===========================
+
+security-libs/org.ietf.jgss:krb5:
+
+JDK-8387162: Enhance Kerberos tickets
+=====================================
+A Kerberos Ticket-Granting Ticket (TGT) may contain a transited field
+[0] which lists the other realms the ticket has passed through.  With
+this OpenJDK release, this field is now checked to make sure that each
+transited realm is in the list of allowed realms retrieved from
+sun.security.krb5.Realm.getRealmsList(String, String).  If the check
+fails, a KrbApErrException is thrown with KRB_AP_PATH_NOT_ACCEPTED as
+the reason.
+
+This check is enabled by default.  To retain the original behaviour,
+the new System property
+`sun.security.krb5.acceptor.checkTransitedPolicy` should be set to
+`false`.
+
+[0] https://datatracker.ietf.org/doc/html/rfc4120#section-3.3.3.2
+
+JDK-8391595: [REDO] Enhance JMX Connections
+===========================================
+The RMI stub URL service:jmx:rmi:///stub/<base64> carries a serialized
+Java object, encoded as base64.  With this OpenJDK release,
+deserialization of this object is now filtered to ensure it is of an
+appropriate type.  The default list of approved types is:
+
+* "java.lang.reflect.Proxy;"
+* "java.rmi.server.RemoteObjectInvocationHandler;"
+* "com.sun.proxy.$Proxy*;"
+* "java.rmi.server.RemoteStub;"
+* "java.rmi.server.RemoteObject;"
+* "javax.management.remote.rmi.RMIServerImpl_Stub;"
+
+This list is always checked.  Additional classes may be prepended to
+the list by using the environment map passed to the `connect` method
+and by setting a System property.  Both settings share the same key
+`jmx.remote.rmi.connector.url.filter.pattern` and both sources of
+additional classes are always checked.
+
 New in release OpenJDK 8u512 (2026-11-03):
 ===========================================
 Live versions of these release notes can be found at:

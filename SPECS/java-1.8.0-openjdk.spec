@@ -8,7 +8,7 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision 8u512-b09
+%global openjdk_revision 8u514-b01
 %global shenandoah_revision shenandoah%{openjdk_revision}
 # e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
 %global version_tag     %(VERSION=%{shenandoah_revision}; echo ${VERSION%%-shenandoah-merge*})
@@ -19,7 +19,7 @@
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
 %global portablerelease 1
-%global rpmrelease 2
+%global rpmrelease 1
 
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
@@ -1625,7 +1625,7 @@ BuildRequires: libpng-devel
 BuildRequires: zlib-devel
 %else
 # Version in jdk/src/share/native/sun/awt/libfreetype/include/freetype/freetype.h
-Provides: bundled(freetype) = 2.14.3
+Provides: bundled(freetype) = 2.15.0
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
 Provides: bundled(giflib) = 6.1.3
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
@@ -1633,7 +1633,7 @@ Provides: bundled(lcms2) = 2.19.1
 # Version in jdk/src/share/native/sun/awt/image/jpeg/jpeglib.h
 Provides: bundled(libjpeg) = 6b
 # Version in jdk/src/share/native/sun/awt/libpng/png.h
-Provides: bundled(libpng) = 1.6.57
+Provides: bundled(libpng) = 1.6.59
 # Version in jdk/src/share/native/java/util/zip/zlib/zlib.h
 Provides: bundled(zlib) = 1.3.2
 %endif
@@ -2718,6 +2718,13 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
+* Thu Nov 12 2026 Andrew Hughes <gnu_andrew@linux.ibm.com> - 1:1.8.0.514.b01-1.1
+- Update to 8u514-b01 (GA).
+- Update release notes for 8u514-b01.
+- Bump freetype version to 2.15.0 following JDK-8394492
+- Bump libpng version to 1.6.59 following JDK-8384495 & JDK-8393195
+- Sync the copy of the portable specfile with the latest update
+
 * Thu Nov 05 2026 Andrew Hughes <gnu_andrew@linux.ibm.com> - 1:1.8.0.512.b09-1.2
 - Require tzdata 2026f due to upstream inclusion of JDK-8388214, JDK-8392377, JDK-8393337 & JDK-8396048
 - Bump giflib version to 6.1.2 following JDK-8384902
